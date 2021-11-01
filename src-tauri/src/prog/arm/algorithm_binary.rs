@@ -3,7 +3,7 @@ use goblin::{
     elf64::section_header::{SHT_NOBITS, SHT_PROGBITS},
 };
 
-use crate::arm::arm_error::ArmError;
+use crate::prog::arm::arm_error::ArmError;
 
 use super::memory_range::MemoryRange;
 

@@ -1,7 +1,7 @@
 use goblin::elf::Elf;
 use serde::{Serialize, Deserialize};
 
-use crate::{arm::flash_device::FlashDevice};
+use crate::prog::{arm::flash_device::FlashDevice};
 
 use super::{algorithm_binary::{AlgorithmBinary}, arm_error::ArmError};
 

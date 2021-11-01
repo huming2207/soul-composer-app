@@ -1,5 +1,10 @@
 import React from 'react';
+import { TopBar } from './components/topBar';
 
 export function App() {
-  return <h1>Hello world!</h1>;
+  return (
+    <>
+      <TopBar />
+    </>
+  );
 }

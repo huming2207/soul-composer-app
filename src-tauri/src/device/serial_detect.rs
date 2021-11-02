@@ -3,14 +3,16 @@ use serialport::SerialPortType;
 use tokio_serial::available_ports;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DeviceInfo {
     pub port: String,
-    pub dev_sn: String,
+    pub serial_number: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SerialDetect {
-    pub devices: Vec<DeviceInfo>
+    pub devices: Vec<DeviceInfo>,
 }
 
 impl SerialDetect {
@@ -22,7 +24,10 @@ impl SerialDetect {
                     match port.port_type {
                         SerialPortType::UsbPort(info) => {
                             if info.vid == 0x303a && info.pid == 0x80ce {
-                                let device_info = DeviceInfo { port: port.port_name, dev_sn: info.serial_number.unwrap_or_default() };
+                                let device_info = DeviceInfo {
+                                    port: port.port_name,
+                                    serial_number: info.serial_number.unwrap_or_default(),
+                                };
                                 devices.push(device_info);
                             }
                         }
@@ -33,6 +38,19 @@ impl SerialDetect {
             Err(_) => todo!(),
         }
 
-        SerialDetect{ devices }
+        SerialDetect { devices }
     }
+}
+
+#[tauri::command]
+pub async fn detect_device() -> Result<String, String> {
+    let detected = SerialDetect::detect();
+    let result = match serde_json::to_string(&detected) {
+        Ok(ret) => ret,
+        Err(err) => {
+            return Err(err.to_string());
+        }
+    };
+
+    Ok(result)
 }

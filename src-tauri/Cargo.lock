@@ -79,6 +79,7 @@ dependencies = [
  "scroll",
  "serde",
  "serde_json",
+ "serialport",
  "tauri",
  "tauri-build",
  "thiserror",
@@ -1863,6 +1864,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a60553f9a9e039a333b4e9b20573b9e9b9c0bb3a11e201ccc48ef4283456d673"
 
 [[package]]
+name = "libudev"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea626d3bdf40a1c5aee3bcd4f40826970cae8d80a8fec934c82a63840094dcfe"
+dependencies = [
+ "libc",
+ "libudev-sys",
+]
+
+[[package]]
+name = "libudev-sys"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c8469b4a23b962c1396b9b451dda50ef5b283e8dd309d69033475fa9b334324"
+dependencies = [
+ "libc",
+ "pkg-config",
+]
+
+[[package]]
 name = "lock_api"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3507,6 +3528,7 @@ dependencies = [
  "IOKit-sys",
  "bitflags",
  "cfg-if 0.1.10",
+ "libudev",
  "mach 0.2.3",
  "nix 0.16.1",
  "regex",

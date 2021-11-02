@@ -27,6 +27,12 @@ log = "0.4"
 scroll = "0.10"
 tokio-serial = "5.4.1"
 serialport = "4.0.1"
+slip-codec = { version = "0.3.1", features = ["tokio-codec"] }
+tokio = { version = "1.13.0", features = ["full"] }
+tokio-util = { version = "0.6.9", features = ["codec"] }
+bytes = "1.1.0"
+lazy_static = "1.4.0"
+futures = "0.3"
 
 [features]
 default = [ "custom-protocol" ]

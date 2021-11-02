@@ -73,17 +73,23 @@ name = "app"
 version = "0.1.0"
 dependencies = [
  "base64 0.13.0",
+ "bytes 1.1.0",
  "cmsis-pack",
+ "futures 0.3.17",
  "goblin",
+ "lazy_static",
  "log",
  "scroll",
  "serde",
  "serde_json",
  "serialport",
+ "slip-codec",
  "tauri",
  "tauri-build",
  "thiserror",
+ "tokio 1.13.0",
  "tokio-serial",
+ "tokio-util",
  "zip",
 ]
 
@@ -3565,6 +3571,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "signal-hook-registry"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e51e73328dc4ac0c7ccbda3a494dfa03df1de2f46018127f60c693f2648455b0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "siphasher"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3575,6 +3590,16 @@ name = "slab"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9def91fd1e018fe007022791f865d0ccc9b3a0d5001e01aabb8b40e46000afb5"
+
+[[package]]
+name = "slip-codec"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84f8833b992c6c9a17df421ae40e8a447350493964722b24c2cb9a0d9b86bdcb"
+dependencies = [
+ "bytes 1.1.0",
+ "tokio-util",
+]
 
 [[package]]
 name = "smallvec"
@@ -4097,7 +4122,11 @@ dependencies = [
  "memchr",
  "mio 0.7.14",
  "num_cpus",
+ "once_cell",
+ "parking_lot 0.11.2",
  "pin-project-lite",
+ "signal-hook-registry",
+ "tokio-macros",
  "winapi 0.3.9",
 ]
 
@@ -4182,6 +4211,17 @@ dependencies = [
  "bytes 0.4.12",
  "futures 0.1.31",
  "log",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "1.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "114383b041aa6212c579467afa0075fbbdd0718de036100bc0ba7961d8cb9095"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -4314,6 +4354,20 @@ dependencies = [
  "tokio-codec",
  "tokio-io",
  "tokio-reactor",
+]
+
+[[package]]
+name = "tokio-util"
+version = "0.6.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e99e1983e5d376cd8eb4b66604d2e99e79f5bd988c3055891dcd8c9e2604cc0"
+dependencies = [
+ "bytes 1.1.0",
+ "futures-core",
+ "futures-sink",
+ "log",
+ "pin-project-lite",
+ "tokio 1.13.0",
 ]
 
 [[package]]

@@ -1,9 +1,9 @@
 use goblin::elf::Elf;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::prog::{arm::flash_device::FlashDevice};
+use crate::prog::arm::flash_device::FlashDevice;
 
-use super::{algorithm_binary::{AlgorithmBinary}, arm_error::ArmError};
+use super::{algorithm_binary::AlgorithmBinary, arm_error::ArmError};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -46,7 +46,12 @@ fn extract_flash_device(elf: &goblin::elf::Elf, buffer: &[u8]) -> Result<FlashDe
 }
 
 impl ArmFlashStub {
-    pub fn from_elf(buf: &[u8], name: String, default: bool, ram_size: u32) -> Result<ArmFlashStub, ArmError> {
+    pub fn from_elf(
+        buf: &[u8],
+        name: String,
+        default: bool,
+        ram_size: u32,
+    ) -> Result<ArmFlashStub, ArmError> {
         let elf = match Elf::parse(buf) {
             Ok(elf) => elf,
             Err(_) => return Err(ArmError::ElfParse),
@@ -85,7 +90,7 @@ impl ArmFlashStub {
         algo.erased_byte_value = flash_device.erased_default_value;
         algo.default = default;
         algo.ram_size = ram_size;
-        
+
         Ok(algo)
     }
 }

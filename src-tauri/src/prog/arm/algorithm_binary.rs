@@ -87,13 +87,16 @@ impl AlgorithmBinary {
                 log::warn!("\t{}", section);
             }
 
-            log::warn!("Code should be placed in the '{}' section, and data should be placed in the '{}' section.", CODE_SECTION_KEY.0, DATA_SECTION_KEY.0);
+            log::warn!(
+        "Code should be placed in the '{}' section, and data should be placed in the '{}' section.",
+        CODE_SECTION_KEY.0,
+        DATA_SECTION_KEY.0
+      );
         }
 
         // Check all the sections for validity and return the binary blob if possible.
-        let code_section = code_section.ok_or_else(|| {
-            ArmError::StubSectionNotFound(CODE_SECTION_KEY.0.to_string())
-        })?;
+        let code_section = code_section
+            .ok_or_else(|| ArmError::StubSectionNotFound(CODE_SECTION_KEY.0.to_string()))?;
 
         let data_section = data_section.unwrap_or_else(|| Section {
             start: code_section.start + code_section.length,

@@ -1,6 +1,5 @@
 use std::ops::Range;
 
-
 pub trait MemoryRange {
     /// Returns true if `self` contains `range` fully.
     fn contains_range(&self, range: &Range<u32>) -> bool;

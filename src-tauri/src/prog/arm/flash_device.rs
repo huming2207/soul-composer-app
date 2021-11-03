@@ -71,7 +71,13 @@ impl FlashDevice {
         // Get the rest of the data stored in the struct.
         let data = match FlashDevice::read_elf_bin_data(elf, buffer, address, Self::INFO_SIZE) {
             Some(data) => data,
-            None => return Err(ArmError::ReadBinaryInfoFail(format!("Read address: {:#010x}, size: {} bytes", address, Self::INFO_SIZE))),
+            None => {
+                return Err(ArmError::ReadBinaryInfoFail(format!(
+                    "Read address: {:#010x}, size: {} bytes",
+                    address,
+                    Self::INFO_SIZE
+                )))
+            }
         };
 
         // Get the string length of the name
@@ -107,7 +113,7 @@ impl FlashDevice {
         let mut offset = Self::INFO_SIZE;
         // As long as we find new sectors, keep em comming.
         while let Some(data) =
-        FlashDevice::read_elf_bin_data(elf, buffer, address + offset, Self::SECTOR_INFO_SIZE)
+            FlashDevice::read_elf_bin_data(elf, buffer, address + offset, Self::SECTOR_INFO_SIZE)
         {
             if let Some(sector) = SectorInfo::new(data) {
                 sectors.push(sector);
@@ -130,28 +136,27 @@ impl FlashDevice {
         for ph in &elf.program_headers {
             let segment_address = ph.p_paddr as u32;
             let segment_size = ph.p_memsz.min(ph.p_filesz) as u32;
-    
+
             log::debug!("Segment address: {:#010x}", segment_address);
             log::debug!("Segment size:    {} bytes", segment_size);
-    
+
             // If the requested data is above the current segment, skip the segment.
             if address > segment_address + segment_size {
                 continue;
             }
-    
+
             // If the requested data is below the current segment, skip the segment.
             if address + size <= segment_address {
                 continue;
             }
-    
+
             // If the requested data chunk is fully contained in the segment, extract and return the data segment.
             if address >= segment_address && address + size <= segment_address + segment_size {
                 let start = ph.p_offset as u32 + address - segment_address;
                 return Some(&buffer[start as usize..][..size as usize]);
             }
         }
-    
+
         None
     }
-    
 }

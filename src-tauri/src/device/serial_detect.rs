@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
-use serialport::SerialPortType;
-use tokio_serial::available_ports;
+use serialport::{SerialPortType, available_ports};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

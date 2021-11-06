@@ -1,10 +1,13 @@
 use std::{convert::TryFrom, time::Duration};
 
-use crc::{CRC_16_KERMIT, Crc};
+use crc::{Crc, CRC_16_KERMIT};
 
 use crate::device::serial_comm::SerialComm;
 
-use super::{error::DeviceError, packet::{CdcPacket, DeviceInfo, PacketHeader, PacketType}};
+use super::{
+    error::DeviceError,
+    packet::{CdcPacket, DeviceInfo, PacketHeader, PacketType},
+};
 
 pub const CDC_CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_KERMIT); // Kermit seems to be CCITT on ESP32??
 
@@ -26,7 +29,10 @@ impl ProtocolCodec {
             let actual_crc = CDC_CRC.checksum(&rx_buf);
 
             if actual_crc != header.crc {
-                return Err(DeviceError::DecodeError(format!("CRC mimatched, expect {:#04x} but got {:#04x}", header.crc, actual_crc)));
+                return Err(DeviceError::DecodeError(format!(
+                    "CRC mimatched, expect {:#04x} but got {:#04x}",
+                    header.crc, actual_crc
+                )));
             }
         }
 
@@ -36,32 +42,56 @@ impl ProtocolCodec {
             PacketType::GetAlgoInfo => self.parse_get_algo_info(rx_buf.as_slice(), header)?,
             PacketType::GetFirmwareInfo => self.parse_get_fw_info(rx_buf.as_slice(), header)?,
             PacketType::Ping => self.parse_ping(rx_buf.as_slice(), header)?,
-            _ => (None, "".to_string())
+            _ => (None, "".to_string()),
         };
 
         Ok(parsed.1)
     }
 
-    fn parse_device_info(&self, buf: &[u8], header: PacketHeader) -> Result<(Option<Vec<u8>>, String), DeviceError> {
+    fn parse_device_info(
+        &self,
+        buf: &[u8],
+        header: PacketHeader,
+    ) -> Result<(Option<Vec<u8>>, String), DeviceError> {
         let device_info: DeviceInfo = DeviceInfo::try_from(&buf[4..])?;
-        let packet = CdcPacket{ header, body: device_info };
-        let json_str = serde_json::to_string(&packet).map_err(|err| DeviceError::EncodeError(err.to_string()))?;
+        let packet = CdcPacket {
+            header,
+            body: device_info,
+        };
+        let json_str = serde_json::to_string(&packet)
+            .map_err(|err| DeviceError::EncodeError(err.to_string()))?;
         Ok((None, json_str))
     }
 
-    fn parse_get_config(&self, buf: &[u8], header: PacketHeader) -> Result<(Option<Vec<u8>>, String), DeviceError> {
+    fn parse_get_config(
+        &self,
+        buf: &[u8],
+        header: PacketHeader,
+    ) -> Result<(Option<Vec<u8>>, String), DeviceError> {
         Ok((None, "".to_string()))
     }
 
-    fn parse_get_algo_info(&self, buf: &[u8], header: PacketHeader) -> Result<(Option<Vec<u8>>, String), DeviceError> {
+    fn parse_get_algo_info(
+        &self,
+        buf: &[u8],
+        header: PacketHeader,
+    ) -> Result<(Option<Vec<u8>>, String), DeviceError> {
         Ok((None, "".to_string()))
     }
 
-    fn parse_get_fw_info(&self, buf: &[u8], header: PacketHeader) -> Result<(Option<Vec<u8>>, String), DeviceError> {
+    fn parse_get_fw_info(
+        &self,
+        buf: &[u8],
+        header: PacketHeader,
+    ) -> Result<(Option<Vec<u8>>, String), DeviceError> {
         Ok((None, "".to_string()))
     }
 
-    fn parse_ping(&self, buf: &[u8], header: PacketHeader) -> Result<(Option<Vec<u8>>, String), DeviceError> {
+    fn parse_ping(
+        &self,
+        buf: &[u8],
+        header: PacketHeader,
+    ) -> Result<(Option<Vec<u8>>, String), DeviceError> {
         Ok((None, "".to_string()))
     }
 

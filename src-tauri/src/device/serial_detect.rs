@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use serialport::{SerialPortType, available_ports};
+use serialport::{available_ports, SerialPortType};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

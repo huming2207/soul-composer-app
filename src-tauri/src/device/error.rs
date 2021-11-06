@@ -22,4 +22,7 @@ pub enum DeviceError {
 
     #[error("Decode error: {0}")]
     DecodeError(String),
+
+    #[error("Encode error: {0}")]
+    EncodeError(String),
 }

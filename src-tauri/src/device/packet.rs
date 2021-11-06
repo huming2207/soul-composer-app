@@ -4,7 +4,7 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use serde::{Deserialize, Serialize};
 
-use super::error::DeviceError;
+use super::{error::DeviceError, proto_codec::CDC_CRC};
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, Deserialize, Serialize)]
@@ -84,6 +84,38 @@ impl TryFrom<&[u8]> for PacketHeader {
         };
 
         Ok(PacketHeader{ pkt_type, len: buf[1], crc: ((buf[3] as u16) << 8 | (buf[2] as u16))  })
+    }
+}
+
+impl PacketHeader {
+    pub fn as_bytes(&self) -> [u8; 4] {
+        let mut buf: [u8; 4] = [0; 4];
+        buf[0] = self.pkt_type as u8;
+        buf[1] = self.len;
+        buf[2] = (self.crc & 0xff) as u8;
+        buf[3] = ((self.crc >> 8) & 0xff) as u8;
+
+        buf
+    }
+
+    pub fn new_with_body(pkt_type: PacketType, body: &[u8]) -> Result<PacketHeader, DeviceError> {
+        if body.len() > u8::MAX.into() {
+            return Err(DeviceError::EncodeError(format!("Packet too long, need to chunk: {}", body.len())));
+        }
+
+        let mut header = PacketHeader {
+            crc: 0,
+            len: body.len() as u8,
+            pkt_type
+        };
+
+        let header_buf = header.as_bytes();
+        let mut hasher = CDC_CRC.digest();
+        hasher.update(&header_buf);
+        hasher.update(body);
+        header.crc = hasher.finalize();
+
+        Ok(header)
     }
 }
 

@@ -2,11 +2,12 @@ use std::convert::TryFrom;
 
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
+use serde::{Deserialize, Serialize};
 
 use super::error::DeviceError;
 
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, FromPrimitive)]
+#[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, Deserialize, Serialize)]
 pub enum PacketType {
     Ack = 0,
     DeviceInfo = 1,
@@ -20,23 +21,39 @@ pub enum PacketType {
     Nack = 0xff,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PacketHeader {
     pub pkt_type: PacketType,
     pub len: u8,
     pub crc: u16,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(bound = "T: Serialize, for<'de2> T: Deserialize<'de2>")]
+pub struct CdcPacket<T>
+    where
+    T: Serialize,
+    for<'de2> T: Deserialize<'de2>, 
+{
+    pub header: PacketHeader,
+    pub body: T
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AckPacket {
     pub pkt_type: PacketType,
     pub len: u8,
     pub crc: u16,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DeviceInfo {
+    #[serde(with = "hex")]
     pub mac_addr: [u8; 6],
+    #[serde(with = "hex")]
     pub flash_id: [u8; 8],
     pub esp_idf_ver: String,
     pub dev_model: String,

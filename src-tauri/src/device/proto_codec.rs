@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::{convert::TryFrom, time::Duration};
 
 use crc::{CRC_16_KERMIT, Crc};
 
@@ -13,13 +13,8 @@ pub struct ProtocolCodec {
 }
 
 impl ProtocolCodec {
-    pub fn parse(&self) -> Result<String, DeviceError> {
-        let serial = match self.cdc.as_ref() {
-            Some(serial) => serial,
-            None => return Err(DeviceError::ReadError("Device not opened".to_string())),
-        };
-
-        let mut rx_buf = serial.read()?;
+    pub fn parse(&self, buf: Vec<u8>) -> Result<String, DeviceError> {
+        let mut rx_buf = buf.clone();
         let rx_buf_slice = rx_buf.as_slice();
         let header: PacketHeader = PacketHeader::try_from(&rx_buf_slice[..4])?;
 
@@ -68,5 +63,18 @@ impl ProtocolCodec {
 
     fn parse_ping(&self, buf: &[u8], header: PacketHeader) -> Result<(Option<Vec<u8>>, String), DeviceError> {
         Ok((None, "".to_string()))
+    }
+
+    pub fn query_device_info(&self) -> Result<String, DeviceError> {
+        let serial = match self.cdc.as_ref() {
+            Some(serial) => serial,
+            None => return Err(DeviceError::ReadError("Device not opened".to_string())),
+        };
+
+        let header = PacketHeader::new_with_body(PacketType::DeviceInfo, &[0; 0])?;
+        serial.write(&header.as_bytes())?;
+
+        let rx_buf = serial.read(Duration::from_secs(3))?;
+        Ok(self.parse(rx_buf)?)
     }
 }

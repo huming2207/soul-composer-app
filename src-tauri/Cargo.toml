@@ -30,6 +30,9 @@ serial-line-ip = "0.5.0"
 bytes = "1.1.0"
 lazy_static = "1.4.0"
 futures = "0.3"
+crc = "2.1.0"
+num-traits = "0.2"
+num-derive = "0.3"
 
 [features]
 default = [ "custom-protocol" ]

@@ -23,6 +23,9 @@ pub enum DeviceError {
     #[error("Decode error: {0}")]
     DecodeError(String),
 
+    #[error("Timeout on serial comm")]
+    TimeoutError,
+
     #[error("Encode error: {0}")]
     EncodeError(String),
 }

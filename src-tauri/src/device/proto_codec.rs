@@ -1,4 +1,4 @@
-use std::{convert::TryFrom, time::Duration};
+use std::{convert::TryFrom, sync::Mutex, time::Duration};
 
 use crc::{Crc, CRC_16_KERMIT};
 
@@ -16,6 +16,10 @@ pub struct ProtocolCodec {
 }
 
 impl ProtocolCodec {
+    pub fn new() -> ProtocolCodec {
+        ProtocolCodec { cdc: None }
+    }
+
     pub fn open(&mut self, port: String) -> Result<(), DeviceError> {
         self.cdc = Some(SerialComm::new(port)?);
         Ok(())
@@ -115,5 +119,43 @@ impl ProtocolCodec {
 
         let rx_buf = serial.read(Duration::from_secs(3))?;
         Ok(self.parse(rx_buf)?)
+    }
+}
+
+impl Default for ProtocolCodec {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[derive(Default)]
+pub struct ProtoCodecState {
+    codec: Mutex<ProtocolCodec>,
+}
+
+#[tauri::command]
+pub async fn cdc_open(
+    invoke_message: String,
+    state: tauri::State<'_, ProtoCodecState>,
+) -> Result<(), String> {
+    let codec = &mut *state.codec.lock().unwrap();
+    match codec.open(invoke_message) {
+        Ok(ret) => return Ok(ret),
+        Err(err) => return Err(err.to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn cdc_close(state: tauri::State<'_, ProtoCodecState>) -> Result<(), String> {
+    let codec = &mut *state.codec.lock().unwrap();
+    Ok(codec.close())
+}
+
+#[tauri::command]
+pub async fn query_device_info(state: tauri::State<'_, ProtoCodecState>) -> Result<String, String> {
+    let codec = &*state.codec.lock().unwrap();
+    match codec.query_device_info() {
+        Ok(ret) => return Ok(ret),
+        Err(err) => return Err(err.to_string()),
     }
 }

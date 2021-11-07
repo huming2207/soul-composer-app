@@ -16,6 +16,15 @@ pub struct ProtocolCodec {
 }
 
 impl ProtocolCodec {
+    pub fn open(&mut self, port: String) -> Result<(), DeviceError> {
+        self.cdc = Some(SerialComm::new(port)?);
+        Ok(())
+    }
+
+    pub fn close(&mut self) {
+        self.cdc = None
+    }
+
     pub fn parse(&self, buf: Vec<u8>) -> Result<String, DeviceError> {
         let mut rx_buf = buf.clone();
         let rx_buf_slice = rx_buf.as_slice();

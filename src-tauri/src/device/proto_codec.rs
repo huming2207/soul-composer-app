@@ -29,7 +29,7 @@ impl ProtocolCodec {
         self.cdc = None
     }
 
-    pub fn parse(&self, buf: Vec<u8>) -> Result<String, DeviceError> {
+    fn parse_header(buf: Vec<u8>) -> Result<PacketHeader, DeviceError> {
         let mut rx_buf = buf.clone();
         let rx_buf_slice = rx_buf.as_slice();
         let header: PacketHeader = PacketHeader::try_from(&rx_buf_slice[..4])?;
@@ -49,31 +49,40 @@ impl ProtocolCodec {
             }
         }
 
-        let parsed = match header.pkt_type {
-            PacketType::DeviceInfo => self.parse_device_info(rx_buf.as_slice(), header)?,
-            PacketType::GetConfig => self.parse_get_config(rx_buf.as_slice(), header)?,
-            PacketType::GetAlgoInfo => self.parse_get_algo_info(rx_buf.as_slice(), header)?,
-            PacketType::GetFirmwareInfo => self.parse_get_fw_info(rx_buf.as_slice(), header)?,
-            PacketType::Ping => self.parse_ping(rx_buf.as_slice(), header)?,
-            _ => (None, "".to_string()),
-        };
-
-        Ok(parsed.1)
+        Ok(header)
     }
 
-    fn parse_device_info(
-        &self,
-        buf: &[u8],
-        header: PacketHeader,
-    ) -> Result<(Option<Vec<u8>>, String), DeviceError> {
+    fn parse_device_info(buf: Vec<u8>) -> Result<CdcPacket<DeviceInfo>, DeviceError> {
+        let header = ProtocolCodec::parse_header(buf.clone())?;
+        if header.pkt_type != PacketType::DeviceInfo {
+            return Err(DeviceError::DecodeError(format!(
+                "Packet type is not DEVICE_INFO: {}",
+                header.pkt_type as u8
+            )));
+        }
+
         let device_info: DeviceInfo = DeviceInfo::try_from(&buf[4..])?;
         let packet = CdcPacket {
             header,
             body: device_info,
         };
-        let json_str = serde_json::to_string(&packet)
-            .map_err(|err| DeviceError::EncodeError(err.to_string()))?;
-        Ok((None, json_str))
+
+        Ok(packet)
+    }
+
+    fn parse_ack(buf: Vec<u8>) -> Result<CdcPacket<()>, DeviceError> {
+        let header = ProtocolCodec::parse_header(buf.clone())?;
+        if header.pkt_type != PacketType::Ack {
+            return Err(DeviceError::DecodeError(format!(
+                "Packet type is not ACK: {}",
+                header.pkt_type as u8
+            )));
+        }
+
+        let device_info: DeviceInfo = DeviceInfo::try_from(&buf[4..])?;
+        let packet = CdcPacket { header, body: () };
+
+        Ok(packet)
     }
 
     fn parse_get_config(
@@ -100,15 +109,7 @@ impl ProtocolCodec {
         Ok((None, "".to_string()))
     }
 
-    fn parse_ping(
-        &self,
-        buf: &[u8],
-        header: PacketHeader,
-    ) -> Result<(Option<Vec<u8>>, String), DeviceError> {
-        Ok((None, "".to_string()))
-    }
-
-    pub fn query_device_info(&self) -> Result<String, DeviceError> {
+    pub fn get_device_info(&self) -> Result<String, DeviceError> {
         let serial = match self.cdc.as_ref() {
             Some(serial) => serial,
             None => return Err(DeviceError::ReadError("Device not opened".to_string())),
@@ -118,7 +119,24 @@ impl ProtocolCodec {
         serial.write(&header.as_bytes())?;
 
         let rx_buf = serial.read(Duration::from_secs(3))?;
-        Ok(self.parse(rx_buf)?)
+        let result = ProtocolCodec::parse_device_info(rx_buf)?;
+        Ok(serde_json::to_string(&result)
+            .map_err(|err| DeviceError::DecodeError(err.to_string()))?)
+    }
+
+    pub fn send_ping(&self) -> Result<String, DeviceError> {
+        let serial = match self.cdc.as_ref() {
+            Some(serial) => serial,
+            None => return Err(DeviceError::ReadError("Device not opened".to_string())),
+        };
+
+        let header = PacketHeader::new_with_body(PacketType::Ping, &[0; 0])?;
+        serial.write(&header.as_bytes())?;
+
+        let rx_buf = serial.read(Duration::from_secs(1))?;
+        let result = ProtocolCodec::parse_ack(rx_buf)?;
+        Ok(serde_json::to_string(&result)
+            .map_err(|err| DeviceError::DecodeError(err.to_string()))?)
     }
 }
 
@@ -152,9 +170,20 @@ pub async fn cdc_close(state: tauri::State<'_, ProtoCodecState>) -> Result<(), S
 }
 
 #[tauri::command]
-pub async fn query_device_info(state: tauri::State<'_, ProtoCodecState>) -> Result<String, String> {
+pub async fn cdc_get_device_info(
+    state: tauri::State<'_, ProtoCodecState>,
+) -> Result<String, String> {
     let codec = &*state.codec.lock().unwrap();
-    match codec.query_device_info() {
+    match codec.get_device_info() {
+        Ok(ret) => return Ok(ret),
+        Err(err) => return Err(err.to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn cdc_ping(state: tauri::State<'_, ProtoCodecState>) -> Result<String, String> {
+    let codec = &*state.codec.lock().unwrap();
+    match codec.send_ping() {
         Ok(ret) => return Ok(ret),
         Err(err) => return Err(err.to_string()),
     }

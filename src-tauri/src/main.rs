@@ -7,8 +7,8 @@ mod device;
 mod prog;
 
 use crate::device::{
-    proto_codec::cdc_close, proto_codec::cdc_open, proto_codec::query_device_info,
-    proto_codec::ProtoCodecState, serial_detect::detect_device,
+    proto_codec::cdc_close, proto_codec::cdc_get_device_info, proto_codec::cdc_open,
+    proto_codec::cdc_ping, proto_codec::ProtoCodecState, serial_detect::detect_device,
 };
 
 fn main() {
@@ -16,9 +16,10 @@ fn main() {
         .manage(ProtoCodecState::default())
         .invoke_handler(tauri::generate_handler![
             detect_device,
-            query_device_info,
+            cdc_get_device_info,
             cdc_open,
-            cdc_close
+            cdc_close,
+            cdc_ping
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

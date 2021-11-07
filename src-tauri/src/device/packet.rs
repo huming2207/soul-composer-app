@@ -127,7 +127,10 @@ impl PacketHeader {
         let header_buf = header.as_bytes();
         let mut hasher = CDC_CRC.digest();
         hasher.update(&header_buf);
-        hasher.update(body);
+        if !body.is_empty() {
+            hasher.update(body);
+        }
+
         header.crc = hasher.finalize();
 
         Ok(header)

@@ -51,12 +51,15 @@ impl SerialComm {
                 continue;
             }
 
+            println!("Got something! len {}", len);
+
             let mut buf: Vec<u8> = vec![0; len as usize];
             let read_len = serial
                 .read(&mut buf)
                 .map_err(|err| DeviceError::ReadError(err.to_string()))?;
 
             if read_len < 1 {
+                println!("Serial reported length {} but actual read got {}", len, read_len);
                 return Err(DeviceError::NothingToRead);
             } else {
                 let mut output_slice: Vec<u8> = vec![0; read_len];
@@ -70,6 +73,7 @@ impl SerialComm {
         }
 
         if elapsed >= timeout {
+            println!("Timeout!!!");
             return Err(DeviceError::NothingToRead);
         } else {
             return Ok(read_buf);
@@ -87,7 +91,8 @@ impl SerialComm {
             .encode(data, &mut output)
             .map_err(|err| DeviceError::ReadError(err.to_string()))?;
 
-        match serial.write(&output[..encoded.written]) {
+        output[encoded.written] = 0xc0; // Append a 0xc0 at the end
+        match serial.write(&output[..encoded.written + 1]) {
             Ok(ret) => Ok(ret),
             Err(err) => Err(DeviceError::WriteError(err.to_string())),
         }

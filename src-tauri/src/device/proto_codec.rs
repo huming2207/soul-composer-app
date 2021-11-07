@@ -78,10 +78,8 @@ impl ProtocolCodec {
                 header.pkt_type as u8
             )));
         }
-
-        let device_info: DeviceInfo = DeviceInfo::try_from(&buf[4..])?;
+        
         let packet = CdcPacket { header, body: () };
-
         Ok(packet)
     }
 
@@ -156,6 +154,7 @@ pub async fn cdc_open(
     invoke_message: String,
     state: tauri::State<'_, ProtoCodecState>,
 ) -> Result<(), String> {
+    println!("Port is: {}", invoke_message);
     let codec = &mut *state.codec.lock().unwrap();
     match codec.open(invoke_message) {
         Ok(ret) => return Ok(ret),

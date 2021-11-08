@@ -1,6 +1,6 @@
 use std::{convert::TryFrom, sync::Mutex, time::Duration};
 
-use crc::{Crc, CRC_16_KERMIT};
+use crc::{CRC_16_XMODEM, Crc};
 
 use crate::device::serial_comm::SerialComm;
 
@@ -9,7 +9,7 @@ use super::{
     packet::{CdcPacket, DeviceInfo, PacketHeader, PacketType},
 };
 
-pub const CDC_CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_KERMIT); // Kermit seems to be CCITT on ESP32??
+pub const CDC_CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_XMODEM); 
 
 pub struct ProtocolCodec {
     cdc: Option<SerialComm>,
@@ -78,7 +78,7 @@ impl ProtocolCodec {
                 header.pkt_type as u8
             )));
         }
-        
+
         let packet = CdcPacket { header, body: () };
         Ok(packet)
     }

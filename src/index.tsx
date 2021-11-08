@@ -20,3 +20,19 @@ setInterval(() => {
       console.error(err);
     });
 }, 3000);
+
+invoke('cdc_open', { invokeMessage: '/dev/ttyACM0' })
+  .then((ret) => {
+    console.log(ret);
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+
+invoke('cdc_get_device_info')
+  .then((ret) => {
+    console.log(ret);
+  })
+  .catch((err) => {
+    console.error(err);
+  });

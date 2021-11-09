@@ -3,11 +3,12 @@ use std::convert::TryFrom;
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use super::{error::DeviceError, proto_codec::CDC_CRC};
 
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, Serialize_repr, Deserialize_repr)]
 pub enum PacketType {
     Ack = 0,
     DeviceInfo = 1,
@@ -154,11 +155,17 @@ impl TryFrom<&[u8]> for DeviceInfo {
         mac_addr[0..6].copy_from_slice(&buf[0..6]);
         flash_id[0..8].copy_from_slice(&buf[6..14]);
         let esp_idf_ver = String::from_utf8((&buf[14..46]).to_vec())
-            .map_err(|err| DeviceError::DecodeError(err.to_string()))?;
+            .map_err(|err| DeviceError::DecodeError(err.to_string()))?
+            .trim_matches(char::from(0))
+            .to_string();
         let dev_model = String::from_utf8((&buf[46..78]).to_vec())
-            .map_err(|err| DeviceError::DecodeError(err.to_string()))?;
+            .map_err(|err| DeviceError::DecodeError(err.to_string()))?
+            .trim_matches(char::from(0))
+            .to_string();
         let dev_build = String::from_utf8((&buf[78..110]).to_vec())
-            .map_err(|err| DeviceError::DecodeError(err.to_string()))?;
+            .map_err(|err| DeviceError::DecodeError(err.to_string()))?
+            .trim_matches(char::from(0))
+            .to_string();
         Ok(DeviceInfo {
             mac_addr,
             flash_id,

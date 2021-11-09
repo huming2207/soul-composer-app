@@ -86,6 +86,7 @@ dependencies = [
  "scroll",
  "serde",
  "serde_json",
+ "serde_repr",
  "serial-line-ip",
  "serialport",
  "tauri",

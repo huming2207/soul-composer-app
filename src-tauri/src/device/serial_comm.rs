@@ -1,11 +1,8 @@
-use std::{
-    sync::{Arc, Mutex},
-    time::{Duration, SystemTime},
-};
+use std::time::{Duration, SystemTime};
 
 use crate::device::error::DeviceError;
 use serial_line_ip::{Decoder, Encoder};
-use serialport::{SerialPort, TTYPort};
+use serialport::SerialPort;
 
 pub struct SerialComm {
     pub serial_port: String,
@@ -59,7 +56,10 @@ impl SerialComm {
                 .map_err(|err| DeviceError::ReadError(err.to_string()))?;
 
             if read_len < 1 {
-                println!("Serial reported length {} but actual read got {}", len, read_len);
+                println!(
+                    "Serial reported length {} but actual read got {}",
+                    len, read_len
+                );
                 return Err(DeviceError::NothingToRead);
             } else {
                 let mut output_slice: Vec<u8> = vec![0; read_len];

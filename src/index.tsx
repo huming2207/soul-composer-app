@@ -7,14 +7,16 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { invoke } from '@tauri-apps/api/tauri';
+import SoulDeviceStateInstance, { ScannedResult } from './models/SoulDevice';
 
 const app = document.getElementById('app');
 ReactDOM.render(<App />, app);
 
 setInterval(() => {
   invoke('detect_device')
-    .then((ret) => {
+    .then((ret: any) => {
       console.log(ret);
+      SoulDeviceStateInstance.setScanResult(JSON.parse(ret));
     })
     .catch((err) => {
       console.error(err);

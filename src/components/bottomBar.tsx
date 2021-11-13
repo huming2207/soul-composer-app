@@ -20,8 +20,8 @@ import { scanSoulInjectorDevices } from '../native/invoke';
 
 export const BottomBar = (): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
-  const handleDeviceSelect = (device: ScannedDevice) => {
-    SoulDevice.setSelectedDevice(device);
+  const handleDeviceSelect = async (device: ScannedDevice) => {
+    await SoulDevice.setSelectedDevice(device);
     setOpen(false);
   };
 
@@ -36,7 +36,7 @@ export const BottomBar = (): JSX.Element => {
       <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {`Soul Composer - ${deviceState.selectedDevice ? deviceState.selectedDevice.port : 'Disconnected'}`}
+            {deviceState.selectedDevice ? 'Device:' + deviceState.selectedDevice.port : 'Device disconnected'}
           </Typography>
           <IconButton size="large" color="inherit" onClick={() => setOpen(true)}>
             <Observer>{() => (SoulDevice.selectedDevice ? <UsbRounded /> : <UsbOffRounded />)}</Observer>

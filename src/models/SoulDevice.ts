@@ -1,4 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
+import { closeSoulInjectorDevice, openSoulInjectorDevice } from '../native/invoke';
 
 export interface ScannedDevice {
   port: string;
@@ -25,7 +26,13 @@ class SoulDeviceState {
     });
   }
 
-  public setSelectedDevice(device: ScannedDevice): void {
+  public async setSelectedDevice(device: ScannedDevice): Promise<void> {
+    if (this.selectedDevice) {
+      await closeSoulInjectorDevice();
+    }
+
+    await openSoulInjectorDevice(device.port);
+
     runInAction(() => {
       this.selectedDevice = device;
     });

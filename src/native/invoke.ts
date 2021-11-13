@@ -43,3 +43,11 @@ export const queryDeviceInfo = async (): Promise<SoulPacket<SoulDeviceInfo>> => 
       .catch((err) => reject(err));
   });
 };
+
+export const closeSoulInjectorDevice = async (): Promise<void> => {
+  return new Promise<void>((resolve, reject) => {
+    invoke('cdc_close')
+      .then(() => resolve())
+      .catch((err) => reject(err));
+  });
+};

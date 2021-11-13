@@ -13,9 +13,10 @@ import {
   Avatar,
 } from '@mui/material';
 import { Observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import React, { useState } from 'react';
 import SoulDevice, { ScannedDevice, SoulDeviceStateInstance } from '../models/SoulDevice';
+import { useInterval } from 'usehooks-ts';
+import { scanSoulInjectorDevices } from '../native/invoke';
 
 export const TopBar = (): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
@@ -23,6 +24,10 @@ export const TopBar = (): JSX.Element => {
     SoulDevice.setSelectedDevice(device);
     setOpen(false);
   };
+
+  useInterval(async () => {
+    SoulDevice.setScanResult(await scanSoulInjectorDevices());
+  }, 3000);
 
   const deviceState = SoulDeviceStateInstance;
   console.log(deviceState);

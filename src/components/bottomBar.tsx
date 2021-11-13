@@ -18,7 +18,7 @@ import SoulDevice, { ScannedDevice, SoulDeviceStateInstance } from '../models/So
 import { useInterval } from 'usehooks-ts';
 import { scanSoulInjectorDevices } from '../native/invoke';
 
-export const TopBar = (): JSX.Element => {
+export const BottomBar = (): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const handleDeviceSelect = (device: ScannedDevice) => {
     SoulDevice.setSelectedDevice(device);
@@ -33,7 +33,7 @@ export const TopBar = (): JSX.Element => {
   console.log(deviceState);
   return (
     <>
-      <AppBar>
+      <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {`Soul Composer - ${deviceState.selectedDevice ? deviceState.selectedDevice.port : 'Disconnected'}`}

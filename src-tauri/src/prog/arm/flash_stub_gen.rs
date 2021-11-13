@@ -94,3 +94,18 @@ impl ArmFlashStub {
         Ok(algo)
     }
 }
+
+#[tauri::command]
+pub async fn prog_arm_gen_flash_algo(
+    buf_base64: String,
+    name: String,
+    default: bool,
+    ram_size: u32,
+) -> Result<String, String> {
+    let buf = base64::decode(buf_base64).map_err(|err| err.to_string())?;
+
+    let algo =
+        ArmFlashStub::from_elf(&buf, name, default, ram_size).map_err(|err| err.to_string())?;
+    let json = serde_json::to_string(&algo).map_err(|err| err.to_string())?;
+    Ok(json)
+}

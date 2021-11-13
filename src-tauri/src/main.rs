@@ -11,6 +11,8 @@ use crate::device::{
     proto_codec::cdc_ping, proto_codec::ProtoCodecState, serial_detect::detect_device,
 };
 
+use crate::prog::arm::flash_stub_gen::prog_arm_gen_flash_algo;
+
 fn main() {
     tauri::Builder::default()
         .manage(ProtoCodecState::default())
@@ -19,7 +21,8 @@ fn main() {
             cdc_get_device_info,
             cdc_open,
             cdc_close,
-            cdc_ping
+            cdc_ping,
+            prog_arm_gen_flash_algo
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

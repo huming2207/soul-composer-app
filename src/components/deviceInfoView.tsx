@@ -17,7 +17,7 @@ export const DeviceInfoView = (): JSX.Element => {
   return (
     <Observer>
       {() => {
-        if (deviceState.selectedDevice) {
+        if (deviceState.selectedDevice && !deviceInfo) {
           refreshDeviceInfo();
         }
 

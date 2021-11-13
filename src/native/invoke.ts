@@ -38,7 +38,7 @@ export interface SoulPacket<T> {
 
 export const queryDeviceInfo = async (): Promise<SoulPacket<SoulDeviceInfo>> => {
   return new Promise<SoulPacket<SoulDeviceInfo>>((resolve, reject) => {
-    invoke('cdc_open')
+    invoke('cdc_get_device_info')
       .then((ret: any) => resolve(JSON.parse(ret)))
       .catch((err) => reject(err));
   });

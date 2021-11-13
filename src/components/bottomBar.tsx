@@ -30,13 +30,12 @@ export const BottomBar = (): JSX.Element => {
   }, 3000);
 
   const deviceState = SoulDeviceStateInstance;
-  console.log(deviceState);
   return (
     <>
       <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {deviceState.selectedDevice ? 'Device:' + deviceState.selectedDevice.port : 'Device disconnected'}
+            {deviceState.selectedDevice ? 'Device: ' + deviceState.selectedDevice.port : 'Device disconnected'}
           </Typography>
           <IconButton size="large" color="inherit" onClick={() => setOpen(true)}>
             <Observer>{() => (SoulDevice.selectedDevice ? <UsbRounded /> : <UsbOffRounded />)}</Observer>

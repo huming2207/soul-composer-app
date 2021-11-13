@@ -12,17 +12,6 @@ import SoulDeviceStateInstance, { ScannedResult } from './models/SoulDevice';
 const app = document.getElementById('app');
 ReactDOM.render(<App />, app);
 
-setInterval(() => {
-  invoke('detect_device')
-    .then((ret: any) => {
-      console.log(ret);
-      SoulDeviceStateInstance.setScanResult(JSON.parse(ret));
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-}, 3000);
-
 invoke('cdc_open', { invokeMessage: '/dev/ttyACM0' })
   .then((ret) => {
     console.log(ret);

@@ -1,5 +1,7 @@
 import { Box, Container, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
+import { ConfigView } from './configView';
+import { DeviceInfoView } from './deviceInfoView';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -18,11 +20,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -52,7 +50,7 @@ export const MainView = (): JSX.Element => {
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          Device information
+          <DeviceInfoView />
         </TabPanel>
         <TabPanel value={value} index={1}>
           Configuration

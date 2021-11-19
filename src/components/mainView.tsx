@@ -53,7 +53,7 @@ export const MainView = (): JSX.Element => {
           <DeviceInfoView />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          Configuration
+          <ConfigView />
         </TabPanel>
         <TabPanel value={value} index={2}>
           Firmware Image

@@ -1,3 +1,5 @@
+use std::{fs, path::Path};
+
 use goblin::elf::Elf;
 use serde::{Deserialize, Serialize};
 
@@ -96,13 +98,28 @@ impl ArmFlashStub {
 }
 
 #[tauri::command]
-pub async fn prog_arm_gen_flash_algo(
+pub async fn prog_arm_gen_flash_algo_from_base64(
     buf_base64: String,
     name: String,
     default: bool,
     ram_size: u32,
 ) -> Result<String, String> {
     let buf = base64::decode(buf_base64).map_err(|err| err.to_string())?;
+
+    let algo =
+        ArmFlashStub::from_elf(&buf, name, default, ram_size).map_err(|err| err.to_string())?;
+    let json = serde_json::to_string(&algo).map_err(|err| err.to_string())?;
+    Ok(json)
+}
+
+#[tauri::command]
+pub async fn prog_arm_gen_flash_algo(
+    path: String,
+    name: String,
+    default: bool,
+    ram_size: u32,
+) -> Result<String, String> {
+    let buf = fs::read(Path::new(&path)).map_err(|err| err.to_string())?;
 
     let algo =
         ArmFlashStub::from_elf(&buf, name, default, ram_size).map_err(|err| err.to_string())?;

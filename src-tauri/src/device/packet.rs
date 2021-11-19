@@ -19,6 +19,8 @@ pub enum PacketType {
     GetFirmwareInfo = 6,
     SetFirmwareBin = 7,
     Ping = 8,
+    SendChunk = 9,
+    ChunkAck = 10,
     Nack = 0xff,
 }
 
@@ -84,6 +86,8 @@ impl TryFrom<&[u8]> for PacketHeader {
             Some(PacketType::SetAlgoBin) => PacketType::SetAlgoBin,
             Some(PacketType::Nack) => PacketType::Nack,
             Some(PacketType::Ping) => PacketType::Ping,
+            Some(PacketType::SendChunk) => PacketType::SendChunk,
+            Some(PacketType::ChunkAck) => PacketType::ChunkAck,
             None => {
                 return Err(DeviceError::DecodeError(format!(
                     "Packet type {} not found",

@@ -16,10 +16,8 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import { maxHeight } from '@mui/system';
 import { dialog } from '@tauri-apps/api';
 import React, { useState } from 'react';
-import { FixedSizeList } from 'react-window';
 import { FlashAlgoMetadata, genArmFlashAlgoMetadata } from '../native/invoke';
 
 export const ConfigView = (): JSX.Element => {

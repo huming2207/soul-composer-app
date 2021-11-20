@@ -1,4 +1,4 @@
-import { Box, Container, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { useState } from 'react';
 import { ConfigView } from './configView';
 import { DeviceInfoView } from './deviceInfoView';

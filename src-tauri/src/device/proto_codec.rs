@@ -1,15 +1,16 @@
 use std::{convert::TryFrom, sync::Mutex, time::Duration};
 
-use crc::{Crc, CRC_16_XMODEM};
-
 use crate::device::serial_comm::SerialComm;
 
 use super::{
     error::DeviceError,
-    packet::{CdcPacket, DeviceInfo, PacketHeader, PacketType},
+    packet::{
+        device_info::DeviceInfo,
+        misc::PacketType,
+        pkt_header::{CdcPacket, PacketHeader},
+        CDC_CRC,
+    },
 };
-
-pub const CDC_CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_XMODEM);
 
 pub struct ProtocolCodec {
     cdc: Option<SerialComm>,

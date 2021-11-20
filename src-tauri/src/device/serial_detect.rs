@@ -3,7 +3,7 @@ use serialport::{available_ports, SerialPortType};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeviceInfo {
+pub struct EnumeratedResult {
     pub port: String,
     pub serial_number: String,
 }
@@ -11,7 +11,7 @@ pub struct DeviceInfo {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SerialDetect {
-    pub devices: Vec<DeviceInfo>,
+    pub devices: Vec<EnumeratedResult>,
 }
 
 impl SerialDetect {
@@ -23,7 +23,7 @@ impl SerialDetect {
                     match port.port_type {
                         SerialPortType::UsbPort(info) => {
                             if info.vid == 0x303a && info.pid == 0x80ce {
-                                let device_info = DeviceInfo {
+                                let device_info = EnumeratedResult {
                                     port: port.port_name,
                                     serial_number: info.serial_number.unwrap_or_default(),
                                 };

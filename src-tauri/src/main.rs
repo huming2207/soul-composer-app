@@ -11,7 +11,9 @@ use crate::device::{
     proto_codec::cdc_ping, proto_codec::ProtoCodecState, serial_detect::detect_device,
 };
 
-use crate::prog::arm::flash_stub_gen::{prog_arm_gen_flash_algo_from_base64, prog_arm_gen_flash_algo};
+use crate::prog::arm::flash_stub_gen::{
+    prog_arm_gen_flash_algo, prog_arm_gen_flash_algo_from_base64,
+};
 
 fn main() {
     tauri::Builder::default()

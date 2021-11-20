@@ -51,3 +51,38 @@ export const closeSoulInjectorDevice = async (): Promise<void> => {
       .catch((err) => reject(err));
   });
 };
+
+export interface FlashAlgoMetadata {
+  name: string;
+  description: string;
+  default: boolean;
+  instructions: string;
+  pcInit?: number;
+  pcUninit?: number;
+  pcProgramPage: number;
+  pcEraseSector: number;
+  pcEraseAll?: number;
+  dataSectionOffset: number;
+  flashStartAddr: number;
+  flashEndAddr: number;
+  flashPageSize: number;
+  erasedByteValue: number;
+  flashSectorSize: number;
+  programTimeout: number;
+  eraseTimeout: number;
+  ramSize: number;
+  flashSize: number;
+}
+
+export const genArmFlashAlgoMetadata = async (
+  path: string,
+  name: string,
+  defaultAlgo: boolean,
+  ramSize: number,
+): Promise<FlashAlgoMetadata> => {
+  return new Promise<FlashAlgoMetadata>((resolve, reject) => {
+    invoke('prog_arm_gen_flash_algo', { path, name, default: defaultAlgo, ramSize })
+      .then((ret: any) => resolve(JSON.parse(ret)))
+      .catch((err) => reject(err));
+  });
+};

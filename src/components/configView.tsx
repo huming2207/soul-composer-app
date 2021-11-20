@@ -153,7 +153,7 @@ export const ConfigView = (): JSX.Element => {
       </Paper>
       <Dialog onClose={() => setOpenAttributeDialog(false)} open={openAttributeDialog}>
         <DialogTitle>Flash algorithm information</DialogTitle>
-        <List sx={{ pt: 0 }}>
+        <List>
           <ListItem>
             <ListItemText
               primary="Function pointers"

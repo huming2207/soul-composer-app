@@ -1,3 +1,4 @@
+pub mod device_cfg;
 pub mod device_info;
 pub mod misc;
 pub mod pkt_header;

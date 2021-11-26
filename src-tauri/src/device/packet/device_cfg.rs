@@ -40,6 +40,42 @@ impl DeviceConfig {
 
         u32::from_le_bytes(arr)
     }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut buf: Vec<u8> = Vec::new();
+
+        let magic = DEV_CFG_PKT_MAGIC;
+        buf.extend_from_slice(&magic.to_le_bytes()); // 0..4
+        buf.extend_from_slice(&self.pc_init.to_le_bytes()); // 4..8
+        buf.extend_from_slice(&self.pc_uninit.to_le_bytes()); // 8..12
+        buf.extend_from_slice(&self.pc_program_page.to_le_bytes()); // 12..16
+        buf.extend_from_slice(&self.pc_erase_sector.to_le_bytes()); // 16..20
+        buf.extend_from_slice(&self.pc_erase_all.to_le_bytes()); // 20..24
+        buf.extend_from_slice(&self.data_section_offset.to_le_bytes()); // 24..28
+        buf.extend_from_slice(&self.flash_start_addr.to_le_bytes()); // 28..32
+        buf.extend_from_slice(&self.flash_end_addr.to_le_bytes()); // 32..36
+        buf.extend_from_slice(&self.flash_page_size.to_le_bytes()); // 36..40
+        buf.extend_from_slice(&self.erased_byte.to_le_bytes()); // 40..44
+        buf.extend_from_slice(&self.flash_sector_size.to_le_bytes()); // 44..48
+        buf.extend_from_slice(&self.program_timeout.to_le_bytes()); // 48..52
+        buf.extend_from_slice(&self.erase_timeout.to_le_bytes()); // 52..56
+        buf.extend_from_slice(&self.ram_size.to_le_bytes()); // 56..60
+        buf.extend_from_slice(&self.flash_size.to_le_bytes()); // 60..64
+
+        let mut name_trunc = self.name.clone();
+        name_trunc.truncate(32);
+        let mut name_bytes: [u8; 32] = [0; 32];
+        name_bytes.copy_from_slice(name_trunc.as_bytes());
+        buf.extend_from_slice(&name_bytes); // 64..96
+
+        let mut target_trunc = self.target.clone();
+        target_trunc.truncate(32);
+        let mut target_bytes: [u8; 32] = [0; 32];
+        target_bytes.copy_from_slice(target_trunc.as_bytes());
+        buf.extend_from_slice(&target_bytes); // 96..128
+        
+        buf
+    }
 }
 
 impl TryFrom<&[u8]> for DeviceConfig {

@@ -6,8 +6,8 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FirmwareMetadata {
-    len: u32,
     crc: u32,
+    len: u32,
     name: String,
 }
 
@@ -15,8 +15,8 @@ pub struct FirmwareMetadata {
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FlashAlgoMetadata {
-    len: u32,
     crc: u32,
+    len: u32,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

@@ -73,7 +73,7 @@ impl DeviceConfig {
         let mut target_bytes: [u8; 32] = [0; 32];
         target_bytes.copy_from_slice(target_trunc.as_bytes());
         buf.extend_from_slice(&target_bytes); // 96..128
-        
+
         buf
     }
 }

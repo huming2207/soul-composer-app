@@ -1,6 +1,6 @@
+use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use serde::{Deserialize, Serialize};
-use num_derive::FromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -10,7 +10,6 @@ pub struct FirmwareMetadata {
     len: u32,
     name: String,
 }
-
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -23,7 +22,7 @@ pub struct FlashAlgoMetadata {
 #[serde(rename_all = "camelCase")]
 pub struct FileChunk {
     len: u8,
-    buf: Vec<u8>
+    buf: Vec<u8>,
 }
 
 #[repr(u8)]

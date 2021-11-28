@@ -17,7 +17,7 @@ pub struct ArmFlashStub {
     pub name: String,
     pub description: String,
     pub default: bool,
-    
+
     #[serde(with = "Base64Standard")]
     pub instructions: Vec<u8>,
     pub pc_init: Option<u32>,

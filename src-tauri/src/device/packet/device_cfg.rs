@@ -1,6 +1,6 @@
 use std::convert::{TryFrom, TryInto};
 
-use crate::device::error::DeviceError;
+use crate::{device::error::DeviceError, prog::arm::flash_stub_gen::ArmFlashStub};
 
 pub const DEV_CFG_PKT_MAGIC: u32 = 0x4a485349;
 
@@ -135,5 +135,49 @@ impl TryFrom<&[u8]> for DeviceConfig {
             name,
             target,
         })
+    }
+}
+
+impl From<ArmFlashStub> for DeviceConfig {
+    fn from(stub_info: ArmFlashStub) -> Self {
+        let pc_init = stub_info.pc_init.unwrap_or(0);
+        let pc_uninit = stub_info.pc_uninit.unwrap_or(0);
+        let pc_program_page = stub_info.pc_program_page;
+        let pc_erase_sector = stub_info.pc_erase_sector;
+        let pc_erase_all = stub_info.pc_erase_all.unwrap_or(0);
+        let data_section_offset = stub_info.data_section_offset;
+        let flash_start_addr = stub_info.flash_start_addr;
+        let flash_end_addr = stub_info.flash_end_addr;
+        let flash_page_size = stub_info.flash_page_size;
+        let erased_byte = stub_info.erased_byte_value;
+        let flash_sector_size = stub_info.flash_sector_size;
+        let program_timeout = stub_info.program_timeout;
+        let erase_timeout = stub_info.erase_timeout;
+        let ram_size = stub_info.ram_size;
+        let flash_size = stub_info.flash_size;
+        let name = stub_info.name.clone();
+        let target = stub_info.description.clone();
+        let magic = DEV_CFG_PKT_MAGIC;
+
+        DeviceConfig {
+            magic,
+            pc_init,
+            pc_uninit,
+            pc_program_page,
+            pc_erase_sector,
+            pc_erase_all,
+            data_section_offset,
+            flash_start_addr,
+            flash_end_addr,
+            flash_page_size,
+            erased_byte: erased_byte.into(),
+            flash_sector_size,
+            program_timeout,
+            erase_timeout,
+            ram_size,
+            flash_size,
+            name,
+            target,
+        }
     }
 }

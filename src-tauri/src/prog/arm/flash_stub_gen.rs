@@ -1,11 +1,15 @@
 use std::{fs, path::Path};
 
+use base64::STANDARD;
 use goblin::elf::Elf;
 use serde::{Deserialize, Serialize};
 
 use crate::prog::arm::flash_device::FlashDevice;
 
 use super::{algorithm_binary::AlgorithmBinary, arm_error::ArmError};
+use base64_serde::base64_serde_type;
+
+base64_serde_type!(Base64Standard, STANDARD);
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -13,7 +17,9 @@ pub struct ArmFlashStub {
     pub name: String,
     pub description: String,
     pub default: bool,
-    pub instructions: String,
+    
+    #[serde(with = "Base64Standard")]
+    pub instructions: Vec<u8>,
     pub pc_init: Option<u32>,
     pub pc_uninit: Option<u32>,
     pub pc_program_page: u32,
@@ -78,7 +84,7 @@ impl ArmFlashStub {
             }
         }
 
-        algo.instructions = base64::encode(algorithm_binary.blob());
+        algo.instructions = algorithm_binary.blob();
         algo.name = name;
         algo.description = flash_device.name;
         algo.data_section_offset = algorithm_binary.data_section.start;

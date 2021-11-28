@@ -11,19 +11,3 @@ import SoulDeviceStateInstance, { ScannedResult } from './models/SoulDevice';
 
 const app = document.getElementById('app');
 ReactDOM.render(<App />, app);
-
-invoke('cdc_open', { invokeMessage: '/dev/ttyACM0' })
-  .then((ret) => {
-    console.log(ret);
-  })
-  .catch((err) => {
-    console.error(err);
-  });
-
-invoke('cdc_get_device_info')
-  .then((ret) => {
-    console.log(ret);
-  })
-  .catch((err) => {
-    console.error(err);
-  });

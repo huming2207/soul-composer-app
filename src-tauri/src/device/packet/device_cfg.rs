@@ -2,6 +2,8 @@ use std::convert::{TryFrom, TryInto};
 
 use crate::{device::error::DeviceError, prog::arm::flash_stub_gen::ArmFlashStub};
 
+use super::{misc::PacketType, pkt_header::PacketHeader};
+
 pub const DEV_CFG_PKT_MAGIC: u32 = 0x4a485349;
 
 pub struct DeviceConfig {
@@ -75,6 +77,12 @@ impl DeviceConfig {
         buf.extend_from_slice(&target_bytes); // 96..128
 
         buf
+    }
+
+    pub fn as_packet_bytes(&self) -> Result<Vec<u8>, DeviceError> {
+        let body = self.as_bytes();
+        let header = PacketHeader::new_with_body(PacketType::SetConfig, &body)?;
+        Ok(header.as_packet(&body))
     }
 }
 

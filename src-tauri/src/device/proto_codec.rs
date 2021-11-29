@@ -1,10 +1,11 @@
-use std::{convert::TryFrom, sync::Mutex, time::Duration};
+use std::{convert::TryFrom, fs, path::Path, sync::Mutex, time::Duration};
 
-use crate::device::serial_comm::SerialComm;
+use crate::{device::serial_comm::SerialComm, prog::arm::flash_stub_gen::ArmFlashStub};
 
 use super::{
     error::DeviceError,
     packet::{
+        device_cfg::DeviceConfig,
         device_info::DeviceInfo,
         misc::PacketType,
         pkt_header::{CdcPacket, PacketHeader},
@@ -131,6 +132,31 @@ impl ProtocolCodec {
 
         let header = PacketHeader::new_with_body(PacketType::Ping, &[0; 0])?;
         serial.write(&header.as_bytes())?;
+
+        let rx_buf = serial.read(Duration::from_secs(1))?;
+        let result = ProtocolCodec::parse_ack(rx_buf)?;
+        Ok(serde_json::to_string(&result)
+            .map_err(|err| DeviceError::DecodeError(err.to_string()))?)
+    }
+
+    pub fn send_config(
+        &self,
+        algo_path: String,
+        name: String,
+        default: bool,
+        ram_size: u32,
+    ) -> Result<String, DeviceError> {
+        let serial = match self.cdc.as_ref() {
+            Some(serial) => serial,
+            None => return Err(DeviceError::ReadError("Device not opened".to_string())),
+        };
+
+        let buf = fs::read(Path::new(&algo_path))?;
+        let algo = ArmFlashStub::from_elf(&buf, name, default, ram_size)?;
+
+        let cfg: DeviceConfig = algo.into();
+        let cfg_buf = cfg.as_packet_bytes()?;
+        serial.write(&cfg_buf)?;
 
         let rx_buf = serial.read(Duration::from_secs(1))?;
         let result = ProtocolCodec::parse_ack(rx_buf)?;

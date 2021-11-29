@@ -103,4 +103,10 @@ impl PacketHeader {
 
         Ok(header)
     }
+
+    pub fn as_packet(&self, body: &[u8]) -> Vec<u8> {
+        let mut buf = Vec::from(self.as_bytes());
+        buf.extend_from_slice(body);
+        buf
+    }
 }

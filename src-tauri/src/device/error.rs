@@ -1,4 +1,8 @@
+use std::io;
+
 use thiserror::Error;
+
+use crate::prog::arm::arm_error::ArmError;
 
 #[derive(Debug, Error)]
 pub enum DeviceError {
@@ -28,4 +32,10 @@ pub enum DeviceError {
 
     #[error("Encode error: {0}")]
     EncodeError(String),
+
+    #[error(transparent)]
+    ArmFlashStubError(#[from] ArmError),
+
+    #[error(transparent)]
+    FileIoError(#[from] io::Error)
 }

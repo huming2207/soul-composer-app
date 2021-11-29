@@ -37,5 +37,5 @@ pub enum DeviceError {
     ArmFlashStubError(#[from] ArmError),
 
     #[error(transparent)]
-    FileIoError(#[from] io::Error)
+    FileIoError(#[from] io::Error),
 }

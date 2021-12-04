@@ -14,7 +14,7 @@ pub enum PacketType {
     GetFirmwareInfo = 6,
     SetFirmwareMetadata = 7,
     Ping = 8,
-    SendChunk = 9,
+    BlobChunk = 9,
     ChunkAck = 10,
     Nack = 0xff,
 }

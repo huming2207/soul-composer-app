@@ -7,7 +7,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::device::error::DeviceError;
 
-use super::{pkt_header::PacketHeader, misc::PacketType, slice_to_le_u32};
+use super::{misc::PacketType, pkt_header::PacketHeader, slice_to_le_u32};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -122,11 +122,14 @@ impl TryFrom<&[u8]> for ChunkAckPkt {
 
     fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
         if buf.len() != 5 {
-            return Err(DeviceError::DecodeError(format!("ChunkACK packet expected in 5 bytes, got {0} bytes", buf.len())));
+            return Err(DeviceError::DecodeError(format!(
+                "ChunkACK packet expected in 5 bytes, got {0} bytes",
+                buf.len()
+            )));
         }
 
         let state: ChunkState = buf[0].into();
-        let aux = slice_to_le_u32( &buf[1..5]);
+        let aux = slice_to_le_u32(&buf[1..5]);
 
         Ok(ChunkAckPkt { state, aux })
     }

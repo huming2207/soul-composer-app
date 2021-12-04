@@ -1,4 +1,4 @@
-use std::{convert::TryFrom, fs, path::Path, sync::Mutex, time::Duration, cmp};
+use std::{cmp, convert::TryFrom, fs, path::Path, sync::Mutex, time::Duration};
 
 use crate::{device::serial_comm::SerialComm, prog::arm::flash_stub_gen::ArmFlashStub};
 
@@ -7,9 +7,10 @@ use super::{
     packet::{
         device_cfg::DeviceConfig,
         device_info::DeviceInfo,
+        file_chunk::{BlobChunk, ChunkAckPkt, ChunkState, FlashAlgoMetadata, FLASH_ALGO_MAX_LEN},
         misc::PacketType,
         pkt_header::{CdcPacket, PacketHeader},
-        CDC_CRC, BLOB_CRC, file_chunk::{FLASH_ALGO_MAX_LEN, FlashAlgoMetadata, BlobChunk, ChunkAckPkt, ChunkState},
+        BLOB_CRC, CDC_CRC,
     },
 };
 
@@ -194,7 +195,7 @@ impl ProtocolCodec {
 
         let crc = BLOB_CRC.checksum(&algo.instructions);
         if algo.instructions.len() > FLASH_ALGO_MAX_LEN {
-            return Err(DeviceError::BlobTooLong(algo.instructions.len()))
+            return Err(DeviceError::BlobTooLong(algo.instructions.len()));
         }
 
         let len = algo.instructions.len() as u32;
@@ -204,8 +205,10 @@ impl ProtocolCodec {
 
         self.send_blob_chunk(&algo.instructions, serial)?;
 
-        Ok(serde_json::to_string(&algo)
-            .map_err(|err| DeviceError::DecodeError(err.to_string()))?)
+        Ok(
+            serde_json::to_string(&algo)
+                .map_err(|err| DeviceError::DecodeError(err.to_string()))?,
+        )
     }
 
     fn send_blob_chunk(&self, buf: &[u8], serial: &SerialComm) -> Result<(), DeviceError> {
@@ -217,24 +220,36 @@ impl ProtocolCodec {
             ChunkState::Next => {
                 let new_offset = first_ack.body.aux;
                 if new_offset as usize >= buf.len() {
-                    return Err(DeviceError::WriteError(format!("Unexpected offset for blob ACK, max length is {} while new offset is {}", buf.len(), new_offset)));
+                    return Err(DeviceError::WriteError(format!(
+                        "Unexpected offset for blob ACK, max length is {} while new offset is {}",
+                        buf.len(),
+                        new_offset
+                    )));
                 }
             }
             ChunkState::CrcFail => {
-                return Err(DeviceError::ChecksumError(format!("Checksum failed, expected {:#04x}", first_ack.body.aux)));
+                return Err(DeviceError::ChecksumError(format!(
+                    "Checksum failed, expected {:#04x}",
+                    first_ack.body.aux
+                )));
             }
             ChunkState::UnexpectedError => {
-                return Err(DeviceError::WriteError(format!("Unexpected error occured when sending blob chunk: {:#04x}", first_ack.body.aux)));
+                return Err(DeviceError::WriteError(format!(
+                    "Unexpected error occured when sending blob chunk: {:#04x}",
+                    first_ack.body.aux
+                )));
             }
         }
-
 
         let mut offset: usize = 0;
         let mut remaining: usize = buf.len();
         while remaining > 0 {
             let chunk_len = cmp::min(u8::MAX as usize, remaining);
             let chunk_buf = &buf[offset..(offset + chunk_len)];
-            let blob_chunk = BlobChunk { len: chunk_len as u8, buf: chunk_buf.to_vec() };
+            let blob_chunk = BlobChunk {
+                len: chunk_len as u8,
+                buf: chunk_buf.to_vec(),
+            };
             let blob_chunk_pkt = blob_chunk.as_bytes();
             serial.write(&blob_chunk_pkt);
 
@@ -253,10 +268,16 @@ impl ProtocolCodec {
                     }
                 }
                 ChunkState::CrcFail => {
-                    return Err(DeviceError::ChecksumError(format!("Checksum failed, expected {:#04x}", ack.body.aux)));
+                    return Err(DeviceError::ChecksumError(format!(
+                        "Checksum failed, expected {:#04x}",
+                        ack.body.aux
+                    )));
                 }
                 ChunkState::UnexpectedError => {
-                    return Err(DeviceError::WriteError(format!("Unexpected error occured when sending blob chunk: {:#04x}", ack.body.aux)));
+                    return Err(DeviceError::WriteError(format!(
+                        "Unexpected error occured when sending blob chunk: {:#04x}",
+                        ack.body.aux
+                    )));
                 }
             }
         }

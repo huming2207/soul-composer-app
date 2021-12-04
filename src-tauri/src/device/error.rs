@@ -33,6 +33,9 @@ pub enum DeviceError {
     #[error("Encode error: {0}")]
     EncodeError(String),
 
+    #[error("Message/blob too long: {0} bytes")]
+    BlobTooLong(usize),
+
     #[error(transparent)]
     ArmFlashStubError(#[from] ArmError),
 

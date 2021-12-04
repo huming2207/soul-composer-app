@@ -19,7 +19,7 @@ pub struct FirmwareMetadata {
 
 impl FirmwareMetadata {
     pub fn as_bytes(&self) -> Vec<u8> {
-        let buf: Vec<u8> = Vec::new();
+        let mut buf: Vec<u8> = Vec::new();
         buf.extend_from_slice(&self.crc.to_le_bytes());
         buf.extend_from_slice(&self.len.to_le_bytes());
         let mut short_name = self.name.clone();
@@ -35,13 +35,13 @@ pub const FLASH_ALGO_MAX_LEN: usize = 65536;
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FlashAlgoMetadata {
-    crc: u32,
-    len: u32,
+    pub crc: u32,
+    pub len: u32,
 }
 
 impl FlashAlgoMetadata {
     pub fn as_bytes(&self) -> Vec<u8> {
-        let buf: Vec<u8> = Vec::new();
+        let mut buf: Vec<u8> = Vec::new();
         buf.extend_from_slice(&self.crc.to_le_bytes());
         buf.extend_from_slice(&self.len.to_le_bytes());
 
@@ -57,9 +57,28 @@ impl FlashAlgoMetadata {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FileChunk {
-    len: u8,
-    buf: Vec<u8>,
+pub struct BlobChunk {
+    pub len: u8,
+    pub buf: Vec<u8>,
+}
+
+impl BlobChunk {
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut buf: Vec<u8> = Vec::new();
+        buf.extend_from_slice(&self.len.to_le_bytes());
+
+        let mut trunc_buf = self.buf.clone();
+        trunc_buf.truncate(self.len.into());
+
+        buf.extend_from_slice(&trunc_buf);
+        buf
+    }
+
+    pub fn as_packet_bytes(&self) -> Result<Vec<u8>, DeviceError> {
+        let body = self.as_bytes();
+        let header = PacketHeader::new_with_body(PacketType::BlobChunk, &body)?;
+        Ok(header.as_packet(&body))
+    }
 }
 
 #[repr(u8)]
@@ -94,8 +113,8 @@ impl From<u8> for ChunkState {
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChunkAckPkt {
-    state: ChunkState,
-    aux: u32,
+    pub state: ChunkState,
+    pub aux: u32,
 }
 
 impl TryFrom<&[u8]> for ChunkAckPkt {

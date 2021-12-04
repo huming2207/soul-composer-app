@@ -49,7 +49,7 @@ impl TryFrom<&[u8]> for PacketHeader {
             Some(PacketType::SetAlgoMetadata) => PacketType::SetAlgoMetadata,
             Some(PacketType::Nack) => PacketType::Nack,
             Some(PacketType::Ping) => PacketType::Ping,
-            Some(PacketType::SendChunk) => PacketType::SendChunk,
+            Some(PacketType::BlobChunk) => PacketType::BlobChunk,
             Some(PacketType::ChunkAck) => PacketType::ChunkAck,
             None => {
                 return Err(DeviceError::DecodeError(format!(

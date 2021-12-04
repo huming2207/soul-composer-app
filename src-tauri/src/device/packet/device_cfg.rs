@@ -1,8 +1,8 @@
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryFrom;
 
 use crate::{device::error::DeviceError, prog::arm::flash_stub_gen::ArmFlashStub};
 
-use super::{misc::PacketType, pkt_header::PacketHeader};
+use super::{misc::PacketType, pkt_header::PacketHeader, slice_to_le_u32};
 
 pub const DEV_CFG_PKT_MAGIC: u32 = 0x4a485349;
 
@@ -33,16 +33,6 @@ pub struct FlashAlgoInfo {
 }
 
 impl DeviceConfig {
-    #[inline]
-    fn to_le_u32(buf: &[u8]) -> u32 {
-        let arr: [u8; 4] = match buf.try_into() {
-            Ok(arr) => arr,
-            Err(_) => [0, 0, 0, 0],
-        };
-
-        u32::from_le_bytes(arr)
-    }
-
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut buf: Vec<u8> = Vec::new();
 
@@ -90,7 +80,7 @@ impl TryFrom<&[u8]> for DeviceConfig {
     type Error = DeviceError;
 
     fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
-        let magic = DeviceConfig::to_le_u32(&buf[0..4]);
+        let magic = slice_to_le_u32(&buf[0..4]);
 
         if magic != DEV_CFG_PKT_MAGIC {
             return Err(DeviceError::DecodeError(format!(
@@ -99,21 +89,21 @@ impl TryFrom<&[u8]> for DeviceConfig {
             )));
         }
 
-        let pc_init = DeviceConfig::to_le_u32(&buf[4..8]);
-        let pc_uninit = DeviceConfig::to_le_u32(&buf[8..12]);
-        let pc_program_page = DeviceConfig::to_le_u32(&buf[12..16]);
-        let pc_erase_sector = DeviceConfig::to_le_u32(&buf[16..20]);
-        let pc_erase_all = DeviceConfig::to_le_u32(&buf[20..24]);
-        let data_section_offset = DeviceConfig::to_le_u32(&buf[24..28]);
-        let flash_start_addr = DeviceConfig::to_le_u32(&buf[28..32]);
-        let flash_end_addr = DeviceConfig::to_le_u32(&buf[32..36]);
-        let flash_page_size = DeviceConfig::to_le_u32(&buf[36..40]);
-        let erased_byte = DeviceConfig::to_le_u32(&buf[40..44]);
-        let flash_sector_size = DeviceConfig::to_le_u32(&buf[44..48]);
-        let program_timeout = DeviceConfig::to_le_u32(&buf[48..52]);
-        let erase_timeout = DeviceConfig::to_le_u32(&buf[52..56]);
-        let ram_size = DeviceConfig::to_le_u32(&buf[56..60]);
-        let flash_size = DeviceConfig::to_le_u32(&buf[60..64]);
+        let pc_init = slice_to_le_u32(&buf[4..8]);
+        let pc_uninit = slice_to_le_u32(&buf[8..12]);
+        let pc_program_page = slice_to_le_u32(&buf[12..16]);
+        let pc_erase_sector = slice_to_le_u32(&buf[16..20]);
+        let pc_erase_all = slice_to_le_u32(&buf[20..24]);
+        let data_section_offset = slice_to_le_u32(&buf[24..28]);
+        let flash_start_addr = slice_to_le_u32(&buf[28..32]);
+        let flash_end_addr = slice_to_le_u32(&buf[32..36]);
+        let flash_page_size = slice_to_le_u32(&buf[36..40]);
+        let erased_byte = slice_to_le_u32(&buf[40..44]);
+        let flash_sector_size = slice_to_le_u32(&buf[44..48]);
+        let program_timeout = slice_to_le_u32(&buf[48..52]);
+        let erase_timeout = slice_to_le_u32(&buf[52..56]);
+        let ram_size = slice_to_le_u32(&buf[56..60]);
+        let flash_size = slice_to_le_u32(&buf[60..64]);
         let name = String::from_utf8((&buf[64..96]).to_vec())
             .map_err(|err| DeviceError::DecodeError(err.to_string()))?
             .trim_matches(char::from(0))

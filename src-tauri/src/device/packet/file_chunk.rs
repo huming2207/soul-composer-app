@@ -11,11 +11,36 @@ pub struct FirmwareMetadata {
     name: String,
 }
 
+impl FirmwareMetadata {
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let buf: Vec<u8> = Vec::new();
+        buf.extend_from_slice(&self.crc.to_le_bytes());
+        buf.extend_from_slice(&self.len.to_le_bytes());
+        let mut short_name = self.name.clone();
+        short_name.truncate(31);
+        buf.extend_from_slice(short_name.as_bytes());
+
+        buf
+    }
+}
+
+pub const FLASH_ALGO_MAX_LEN: usize = 65536;
+
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FlashAlgoMetadata {
     crc: u32,
     len: u32,
+}
+
+impl FlashAlgoMetadata {
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let buf: Vec<u8> = Vec::new();
+        buf.extend_from_slice(&self.crc.to_le_bytes());
+        buf.extend_from_slice(&self.len.to_le_bytes());
+
+        buf
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

@@ -1,7 +1,13 @@
+use std::convert::TryFrom;
+
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
+
+use crate::device::error::DeviceError;
+
+use super::{pkt_header::PacketHeader, misc::PacketType, slice_to_le_u32};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -40,6 +46,12 @@ impl FlashAlgoMetadata {
         buf.extend_from_slice(&self.len.to_le_bytes());
 
         buf
+    }
+
+    pub fn as_packet_bytes(&self) -> Result<Vec<u8>, DeviceError> {
+        let body = self.as_bytes();
+        let header = PacketHeader::new_with_body(PacketType::SetAlgoMetadata, &body)?;
+        Ok(header.as_packet(&body))
     }
 }
 
@@ -84,4 +96,19 @@ impl From<u8> for ChunkState {
 pub struct ChunkAckPkt {
     state: ChunkState,
     aux: u32,
+}
+
+impl TryFrom<&[u8]> for ChunkAckPkt {
+    type Error = DeviceError;
+
+    fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
+        if buf.len() != 5 {
+            return Err(DeviceError::DecodeError(format!("ChunkACK packet expected in 5 bytes, got {0} bytes", buf.len())));
+        }
+
+        let state: ChunkState = buf[0].into();
+        let aux = slice_to_le_u32( &buf[1..5]);
+
+        Ok(ChunkAckPkt { state, aux })
+    }
 }

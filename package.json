@@ -1,6 +1,8 @@
 {
   "name": "soulcomposer",
   "source": "src/index.html",
+  "license": "AGPL-3.0",
+  "author": { "name": "Jackson Ming Hu", "email": "huming2207@gmail.com" },
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
     "tauri": "tauri",
@@ -11,34 +13,34 @@
     "@parcel/compressor-brotli": "^2.0.1",
     "@parcel/compressor-gzip": "^2.0.1",
     "@tauri-apps/cli": "^1.0.0-beta.10",
-    "@types/node": "^16.11.7",
-    "@types/react": "^17.0.34",
+    "@types/node": "^16.11.11",
+    "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
     "@types/react-window": "^1.8.5",
-    "@typescript-eslint/eslint-plugin": "^5.3.1",
-    "@typescript-eslint/parser": "^5.3.1",
-    "eslint": "^8.2.0",
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/parser": "^5.5.0",
+    "eslint": "^8.4.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-react": "^7.27.0",
+    "eslint-plugin-react": "^7.27.1",
     "eslint-plugin-react-hooks": "^4.3.0",
     "parcel": "^2.0.1",
-    "prettier": "^2.4.1"
+    "prettier": "^2.5.1"
   },
   "dependencies": {
-    "@emotion/react": "^11.5.0",
-    "@emotion/styled": "^11.3.0",
+    "@emotion/react": "^11.7.0",
+    "@emotion/styled": "^11.6.0",
     "@fontsource/roboto": "^4.5.1",
-    "@mui/icons-material": "^5.1.0",
-    "@mui/material": "^5.1.0",
+    "@mui/icons-material": "^5.2.0",
+    "@mui/material": "^5.2.2",
     "@tauri-apps/api": "^1.0.0-beta.8",
     "base64-js": "^1.5.1",
-    "mobx": "^6.3.7",
+    "mobx": "^6.3.8",
     "mobx-react": "^7.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-window": "^1.8.6",
-    "usehooks-ts": "^1.2.0"
+    "usehooks-ts": "^2.1.1"
   }
 }

@@ -86,3 +86,29 @@ export const genArmFlashAlgoMetadata = async (
       .catch((err) => reject(err));
   });
 };
+
+export const sendConfig = async (
+  path: string,
+  name: string,
+  defaultAlgo: boolean,
+  ramSize: number,
+): Promise<FlashAlgoMetadata> => {
+  return new Promise<FlashAlgoMetadata>((resolve, reject) => {
+    invoke('cdc_send_config', { path, name, default: defaultAlgo, ramSize })
+      .then((ret: any) => resolve(JSON.parse(ret)))
+      .catch((err) => reject(err));
+  });
+};
+
+export const sendFlashAlgo = async (
+  path: string,
+  name: string,
+  defaultAlgo: boolean,
+  ramSize: number,
+): Promise<FlashAlgoMetadata> => {
+  return new Promise<FlashAlgoMetadata>((resolve, reject) => {
+    invoke('cdc_send_flash_algo', { path, name, default: defaultAlgo, ramSize })
+      .then((ret: any) => resolve(JSON.parse(ret)))
+      .catch((err) => reject(err));
+  });
+};

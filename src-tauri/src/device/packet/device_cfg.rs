@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::{cmp, convert::TryFrom};
 
 use crate::{device::error::DeviceError, prog::arm::flash_stub_gen::ArmFlashStub};
 
@@ -57,13 +57,15 @@ impl DeviceConfig {
         let mut name_trunc = self.name.clone();
         name_trunc.truncate(32);
         let mut name_bytes: [u8; 32] = [0; 32];
-        name_bytes.copy_from_slice(name_trunc.as_bytes());
+        name_bytes[..cmp::min(32, name_trunc.as_bytes().len())]
+            .copy_from_slice(name_trunc.as_bytes());
         buf.extend_from_slice(&name_bytes); // 64..96
 
         let mut target_trunc = self.target.clone();
         target_trunc.truncate(32);
         let mut target_bytes: [u8; 32] = [0; 32];
-        target_bytes.copy_from_slice(target_trunc.as_bytes());
+        target_bytes[..cmp::min(32, target_trunc.as_bytes().len())]
+            .copy_from_slice(target_trunc.as_bytes());
         buf.extend_from_slice(&target_bytes); // 96..128
 
         buf

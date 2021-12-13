@@ -8,7 +8,7 @@ mod prog;
 
 use crate::device::{
     proto_codec::cdc_close, proto_codec::cdc_get_device_info, proto_codec::cdc_open,
-    proto_codec::cdc_ping, proto_codec::cdc_send_config, proto_codec::cdc_send_flash_algo, 
+    proto_codec::cdc_ping, proto_codec::cdc_send_config, proto_codec::cdc_send_flash_algo,
     proto_codec::ProtoCodecState, serial_detect::detect_device,
 };
 

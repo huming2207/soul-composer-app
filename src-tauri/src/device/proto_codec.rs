@@ -245,7 +245,7 @@ impl ProtocolCodec {
                 )));
             }
         }
-        
+
         while remaining > 0 {
             let chunk_len = cmp::min(u8::MAX as usize, remaining);
             let chunk_buf = &buf[offset..(offset + chunk_len)];
@@ -340,30 +340,30 @@ pub async fn cdc_ping(state: tauri::State<'_, ProtoCodecState>) -> Result<String
 }
 
 #[tauri::command]
-pub async fn cdc_send_config(        
-    algo_path: String,
+pub async fn cdc_send_config(
+    path: String,
     name: String,
     default: bool,
-    ram_size: u32, 
-    state: tauri::State<'_, ProtoCodecState>
+    ram_size: u32,
+    state: tauri::State<'_, ProtoCodecState>,
 ) -> Result<String, String> {
     let codec = &*state.codec.lock().unwrap();
-    match codec.send_config(algo_path, name, default, ram_size) {
+    match codec.send_config(path, name, default, ram_size) {
         Ok(ret) => return Ok(ret),
         Err(err) => return Err(err.to_string()),
     }
 }
 
 #[tauri::command]
-pub async fn cdc_send_flash_algo(        
-    algo_path: String,
+pub async fn cdc_send_flash_algo(
+    path: String,
     name: String,
     default: bool,
-    ram_size: u32, 
-    state: tauri::State<'_, ProtoCodecState>
+    ram_size: u32,
+    state: tauri::State<'_, ProtoCodecState>,
 ) -> Result<String, String> {
     let codec = &*state.codec.lock().unwrap();
-    match codec.send_flash_algo(algo_path, name, default, ram_size) {
+    match codec.send_flash_algo(path, name, default, ram_size) {
         Ok(ret) => return Ok(ret),
         Err(err) => return Err(err.to_string()),
     }

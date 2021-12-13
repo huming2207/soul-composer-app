@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import { dialog } from '@tauri-apps/api';
 import React, { useState } from 'react';
-import { FlashAlgoMetadata, genArmFlashAlgoMetadata } from '../native/invoke';
+import { FlashAlgoMetadata, genArmFlashAlgoMetadata, sendConfig, sendFlashAlgo } from '../native/invoke';
 
 export const ConfigView = (): JSX.Element => {
   const [flashAlgo, setFlashAlgo] = useState<string>();
@@ -36,6 +36,13 @@ export const ConfigView = (): JSX.Element => {
 
     setFlashAlgo(path);
     setAlgoMetadata(await genArmFlashAlgoMetadata(path, targetName || 'Generic', true, ramSize || 8192));
+  };
+
+  const sendConfigAndAlgo = async () => {
+    if (flashAlgo && targetName && ramSize) {
+      await sendConfig(flashAlgo, targetName, true, ramSize);
+      await sendFlashAlgo(flashAlgo, targetName, true, ramSize);
+    }
   };
 
   return (
@@ -133,7 +140,7 @@ export const ConfigView = (): JSX.Element => {
       </Paper>
       <Paper sx={{ marginTop: 1, padding: 2 }}>
         <Stack direction="row" spacing={2}>
-          <Button variant="contained" color="success">
+          <Button variant="contained" color="success" onClick={async () => await sendConfigAndAlgo()}>
             Write to programmer
           </Button>
           <Button

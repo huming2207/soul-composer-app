@@ -247,13 +247,14 @@ impl ProtocolCodec {
         }
 
         while remaining > 0 {
-            let chunk_len = cmp::min(u8::MAX as usize, remaining);
+            let chunk_len = cmp::min((u8::MAX - 1) as usize, remaining);
+            println!("Chunk len: {}", chunk_len);
             let chunk_buf = &buf[offset..(offset + chunk_len)];
             let blob_chunk = BlobChunk {
                 len: chunk_len as u8,
                 buf: chunk_buf.to_vec(),
             };
-            let blob_chunk_pkt = blob_chunk.as_bytes();
+            let blob_chunk_pkt = blob_chunk.as_packet_bytes()?;
             serial.write(&blob_chunk_pkt)?;
 
             let rx_buf = serial.read(Duration::from_secs(1))?;

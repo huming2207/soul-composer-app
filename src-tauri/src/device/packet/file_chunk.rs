@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::{convert::TryFrom, cmp};
 
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
@@ -12,9 +12,9 @@ use super::{misc::PacketType, pkt_header::PacketHeader, slice_to_le_u32};
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FirmwareMetadata {
-    crc: u32,
-    len: u32,
-    name: String,
+    pub crc: u32,
+    pub len: u32,
+    pub name: String,
 }
 
 impl FirmwareMetadata {
@@ -24,9 +24,20 @@ impl FirmwareMetadata {
         buf.extend_from_slice(&self.len.to_le_bytes());
         let mut short_name = self.name.clone();
         short_name.truncate(31);
-        buf.extend_from_slice(short_name.as_bytes());
+
+        let mut name_bytes: [u8; 32] = [0; 32];
+        name_bytes[..cmp::min(32, short_name.as_bytes().len())]
+            .copy_from_slice(short_name.as_bytes());
+
+        buf.extend_from_slice(&name_bytes);
 
         buf
+    }
+
+    pub fn as_packet_bytes(&self) -> Result<Vec<u8>, DeviceError> {
+        let body = self.as_bytes();
+        let header = PacketHeader::new_with_body(PacketType::SendFirmwareMetadata, &body)?;
+        Ok(header.as_packet(&body))
     }
 }
 
@@ -50,7 +61,7 @@ impl FlashAlgoMetadata {
 
     pub fn as_packet_bytes(&self) -> Result<Vec<u8>, DeviceError> {
         let body = self.as_bytes();
-        let header = PacketHeader::new_with_body(PacketType::SetAlgoMetadata, &body)?;
+        let header = PacketHeader::new_with_body(PacketType::SendAlgoMetadata, &body)?;
         Ok(header.as_packet(&body))
     }
 }

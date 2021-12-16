@@ -55,14 +55,14 @@ impl DeviceConfig {
         buf.extend_from_slice(&self.flash_size.to_le_bytes()); // 60..64
 
         let mut name_trunc = self.name.clone();
-        name_trunc.truncate(32);
+        name_trunc.truncate(31);
         let mut name_bytes: [u8; 32] = [0; 32];
         name_bytes[..cmp::min(32, name_trunc.as_bytes().len())]
             .copy_from_slice(name_trunc.as_bytes());
         buf.extend_from_slice(&name_bytes); // 64..96
 
         let mut target_trunc = self.target.clone();
-        target_trunc.truncate(32);
+        target_trunc.truncate(31);
         let mut target_bytes: [u8; 32] = [0; 32];
         target_bytes[..cmp::min(32, target_trunc.as_bytes().len())]
             .copy_from_slice(target_trunc.as_bytes());

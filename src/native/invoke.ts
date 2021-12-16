@@ -36,6 +36,12 @@ export interface SoulPacket<T> {
   body: T;
 }
 
+export interface FirmwareMetadata {
+  crc: number;
+  len: number;
+  name: string;
+}
+
 export const queryDeviceInfo = async (): Promise<SoulPacket<SoulDeviceInfo>> => {
   return new Promise<SoulPacket<SoulDeviceInfo>>((resolve, reject) => {
     invoke('cdc_get_device_info')
@@ -108,6 +114,14 @@ export const sendFlashAlgo = async (
 ): Promise<FlashAlgoMetadata> => {
   return new Promise<FlashAlgoMetadata>((resolve, reject) => {
     invoke('cdc_send_flash_algo', { path, name, default: defaultAlgo, ramSize })
+      .then((ret: any) => resolve(JSON.parse(ret)))
+      .catch((err) => reject(err));
+  });
+};
+
+export const sendFirmware = async (path: string, name: string): Promise<FirmwareMetadata> => {
+  return new Promise<FirmwareMetadata>((resolve, reject) => {
+    invoke('cdc_send_firmware', { path, name })
       .then((ret: any) => resolve(JSON.parse(ret)))
       .catch((err) => reject(err));
   });

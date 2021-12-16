@@ -6,6 +6,7 @@
 mod device;
 mod prog;
 
+use crate::device::proto_codec::cdc_send_firmware;
 use crate::device::{
     proto_codec::cdc_close, proto_codec::cdc_get_device_info, proto_codec::cdc_open,
     proto_codec::cdc_ping, proto_codec::cdc_send_config, proto_codec::cdc_send_flash_algo,
@@ -27,6 +28,7 @@ fn main() {
             cdc_ping,
             cdc_send_config,
             cdc_send_flash_algo,
+            cdc_send_firmware,
             prog_arm_gen_flash_algo_from_base64,
             prog_arm_gen_flash_algo
         ])

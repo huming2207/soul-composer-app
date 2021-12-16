@@ -213,7 +213,7 @@ impl ProtocolCodec {
 
     pub fn send_firmware(
         &self,
-        algo_path: String,
+        fw_path: String,
         name: String,
         default: bool,
         ram_size: u32,
@@ -223,7 +223,7 @@ impl ProtocolCodec {
             None => return Err(DeviceError::ReadError("Device not opened".to_string())),
         };
 
-        let firmware_buf = fs::read(Path::new(&algo_path))?;
+        let firmware_buf = fs::read(Path::new(&fw_path))?;
 
         let crc = BLOB_CRC.checksum(&firmware_buf);
         let len = firmware_buf.len() as u32;
@@ -393,6 +393,21 @@ pub async fn cdc_send_flash_algo(
 ) -> Result<String, String> {
     let codec = &*state.codec.lock().unwrap();
     match codec.send_flash_algo(path, name, default, ram_size) {
+        Ok(ret) => return Ok(ret),
+        Err(err) => return Err(err.to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn cdc_send_firmware(
+    path: String,
+    name: String,
+    default: bool,
+    ram_size: u32,
+    state: tauri::State<'_, ProtoCodecState>,
+) -> Result<String, String> {
+    let codec = &*state.codec.lock().unwrap();
+    match codec.send_firmware(path, name, default, ram_size) {
         Ok(ret) => return Ok(ret),
         Err(err) => return Err(err.to_string()),
     }

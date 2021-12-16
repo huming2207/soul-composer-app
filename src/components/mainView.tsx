@@ -2,6 +2,7 @@ import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { useState } from 'react';
 import { ConfigView } from './configView';
 import { DeviceInfoView } from './deviceInfoView';
+import { FirmwareView } from './firmwareView';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -56,7 +57,7 @@ export const MainView = (): JSX.Element => {
           <ConfigView />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          Firmware Image
+          <FirmwareView />
         </TabPanel>
       </Container>
     </>

@@ -7,7 +7,10 @@ use super::{
     packet::{
         device_cfg::DeviceConfig,
         device_info::DeviceInfo,
-        file_chunk::{BlobChunk, ChunkAckPkt, ChunkState, FlashAlgoMetadata, FLASH_ALGO_MAX_LEN, FirmwareMetadata},
+        file_chunk::{
+            BlobChunk, ChunkAckPkt, ChunkState, FirmwareMetadata, FlashAlgoMetadata,
+            FLASH_ALGO_MAX_LEN,
+        },
         misc::PacketType,
         pkt_header::{CdcPacket, PacketHeader},
         BLOB_CRC, CDC_CRC,
@@ -211,13 +214,7 @@ impl ProtocolCodec {
         )
     }
 
-    pub fn send_firmware(
-        &self,
-        fw_path: String,
-        name: String,
-        default: bool,
-        ram_size: u32,
-    ) -> Result<String, DeviceError> {
+    pub fn send_firmware(&self, fw_path: String, name: String) -> Result<String, DeviceError> {
         let serial = match self.cdc.as_ref() {
             Some(serial) => serial,
             None => return Err(DeviceError::ReadError("Device not opened".to_string())),
@@ -233,10 +230,8 @@ impl ProtocolCodec {
 
         self.send_blob_chunk(&firmware_buf, serial)?;
 
-        Ok(
-            serde_json::to_string(&metadata)
-                .map_err(|err| DeviceError::EncodeError(err.to_string()))?,
-        )
+        Ok(serde_json::to_string(&metadata)
+            .map_err(|err| DeviceError::EncodeError(err.to_string()))?)
     }
 
     fn send_blob_chunk(&self, buf: &[u8], serial: &SerialComm) -> Result<(), DeviceError> {
@@ -402,12 +397,10 @@ pub async fn cdc_send_flash_algo(
 pub async fn cdc_send_firmware(
     path: String,
     name: String,
-    default: bool,
-    ram_size: u32,
     state: tauri::State<'_, ProtoCodecState>,
 ) -> Result<String, String> {
     let codec = &*state.codec.lock().unwrap();
-    match codec.send_firmware(path, name, default, ram_size) {
+    match codec.send_firmware(path, name) {
         Ok(ret) => return Ok(ret),
         Err(err) => return Err(err.to_string()),
     }

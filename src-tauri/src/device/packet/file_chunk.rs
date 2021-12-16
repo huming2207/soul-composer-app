@@ -1,4 +1,4 @@
-use std::{convert::TryFrom, cmp};
+use std::{cmp, convert::TryFrom};
 
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;

@@ -5,6 +5,8 @@ import {
   Checkbox,
   Dialog,
   DialogTitle,
+  Divider,
+  Grid,
   IconButton,
   List,
   ListItem,
@@ -15,13 +17,15 @@ import {
   Paper,
   Stack,
   TextField,
+  Typography,
 } from '@mui/material';
 import { dialog } from '@tauri-apps/api';
 import React, { useState } from 'react';
 import { FlashAlgoMetadata, genArmFlashAlgoMetadata, sendConfig, sendFlashAlgo } from '../native/invoke';
 
 export const ConfigView = (): JSX.Element => {
-  const [flashAlgo, setFlashAlgo] = useState<string>();
+  const [flashAlgoPath, setFlashAlgoPath] = useState<string>();
+  const [firmwarePath, setFirmwarePath] = useState<string>();
   const [erase, setErase] = useState<boolean>(true);
   const [targetName, setTargetName] = useState<string>();
   const [ramSize, setRamSize] = useState<number>();
@@ -30,18 +34,27 @@ export const ConfigView = (): JSX.Element => {
   const [openAttributeDialog, setOpenAttributeDialog] = useState<boolean>(false);
   const openFlashAlgo = async () => {
     const path = (await dialog.open({
-      filters: [{ extensions: ['bin', 'elf', 'ELF', 'BIN'], name: 'Flash algorithm binary' }],
+      filters: [{ extensions: ['elf', 'ELF'], name: 'Flash algorithm binary' }],
       multiple: false,
     })) as string;
 
-    setFlashAlgo(path);
+    setFlashAlgoPath(path);
     setAlgoMetadata(await genArmFlashAlgoMetadata(path, targetName || 'Generic', true, ramSize || 8192));
   };
 
+  const openFirmwareBlob = async () => {
+    const path = (await dialog.open({
+      filters: [{ extensions: ['bin', 'BIN'], name: 'Firmware binary' }],
+      multiple: false,
+    })) as string;
+
+    setFirmwarePath(path);
+  };
+
   const sendConfigAndAlgo = async () => {
-    if (flashAlgo && targetName && ramSize) {
-      await sendConfig(flashAlgo, targetName, true, ramSize);
-      await sendFlashAlgo(flashAlgo, targetName, true, ramSize);
+    if (flashAlgoPath && targetName && ramSize) {
+      await sendConfig(flashAlgoPath, targetName, true, ramSize);
+      await sendFlashAlgo(flashAlgoPath, targetName, true, ramSize);
     }
   };
 
@@ -49,6 +62,12 @@ export const ConfigView = (): JSX.Element => {
     <>
       <Paper>
         <List>
+          <ListItem divider>
+            <Typography variant="h5" component="div">
+              Flash algorithm
+            </Typography>
+          </ListItem>
+          <ListItem></ListItem>
           <ListItem
             secondaryAction={
               <IconButton edge="end" aria-label="open-file" onClick={openFlashAlgo}>
@@ -56,14 +75,9 @@ export const ConfigView = (): JSX.Element => {
               </IconButton>
             }
           >
-            <ListItemAvatar>
-              <Avatar>
-                <AttachEmail />
-              </Avatar>
-            </ListItemAvatar>
             <TextField
               id="outlined"
-              value={flashAlgo}
+              value={flashAlgoPath}
               fullWidth
               label="Flash algorithm binary"
               size="small"
@@ -71,93 +85,110 @@ export const ConfigView = (): JSX.Element => {
               focused
             />
           </ListItem>
-          <ListItem>
-            <ListItemAvatar>
-              <Avatar>
-                <DriveFileRenameOutline />
-              </Avatar>
-            </ListItemAvatar>
+          <ListItem
+            secondaryAction={
+              <IconButton edge="end" aria-label="open-file" onClick={openFirmwareBlob}>
+                <FolderOpen />
+              </IconButton>
+            }
+          >
             <TextField
               id="outlined"
+              value={firmwarePath}
               fullWidth
-              label="Target name"
+              label="Firmware binary"
               size="small"
               defaultValue=""
               focused
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setTargetName(event.target.value);
-              }}
             />
           </ListItem>
           <ListItem>
-            <ListItemAvatar>
-              <Avatar>
-                <DeveloperBoard />
-              </Avatar>
-            </ListItemAvatar>
-            <TextField
-              id="outlined"
-              fullWidth
-              label="RAM size"
-              size="small"
-              type="text"
-              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-              focused
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setRamSize(parseInt(event.target.value));
-              }}
-            />
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  id="outlined"
+                  fullWidth
+                  label="Target name"
+                  size="small"
+                  defaultValue=""
+                  focused
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setTargetName(event.target.value);
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  id="outlined"
+                  fullWidth
+                  label="RAM size"
+                  size="small"
+                  type="text"
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                  focused
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setRamSize(parseInt(event.target.value));
+                  }}
+                />
+              </Grid>
+            </Grid>
           </ListItem>
           <ListItem>
-            <ListItemButton
-              role={undefined}
-              onClick={() => {
-                setErase(!erase);
-              }}
-              dense
-            >
-              <ListItemIcon>
-                <Checkbox edge="start" checked={erase} tabIndex={-1} disableRipple />
-              </ListItemIcon>
-              <ListItemText primary="Erase" secondary="Clear out the whole flash before flashing" />
-            </ListItemButton>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <ListItemButton
+                  role={undefined}
+                  onClick={() => {
+                    setErase(!erase);
+                  }}
+                  dense
+                >
+                  <ListItemIcon>
+                    <Checkbox edge="start" checked={erase} tabIndex={-1} disableRipple />
+                  </ListItemIcon>
+                  <ListItemText primary="Erase" secondary="Wipe the flash before flashing" />
+                </ListItemButton>
+              </Grid>
+              <Grid item xs={6}>
+                <ListItemButton
+                  role={undefined}
+                  onClick={() => {
+                    setVerify(!verify);
+                  }}
+                  dense
+                >
+                  <ListItemIcon>
+                    <Checkbox edge="start" checked={verify} tabIndex={-1} disableRipple />
+                  </ListItemIcon>
+                  <ListItemText primary="Verify" secondary="Validate after flashing" />
+                </ListItemButton>
+              </Grid>
+            </Grid>
           </ListItem>
           <ListItem>
-            <ListItemButton
-              role={undefined}
-              onClick={() => {
-                setVerify(!verify);
-              }}
-              dense
-            >
-              <ListItemIcon>
-                <Checkbox edge="start" checked={verify} tabIndex={-1} disableRipple />
-              </ListItemIcon>
-              <ListItemText primary="Verify" secondary="Validate after flashing" />
-            </ListItemButton>
+            <Stack direction="row" spacing={3}>
+              <Button size="small" variant="contained" color="success" onClick={async () => await sendConfigAndAlgo()}>
+                Write to programmer
+              </Button>
+              <Button
+                size="small"
+                variant="contained"
+                disabled={algoMetadata === undefined}
+                color="info"
+                onClick={() => {
+                  setOpenAttributeDialog(true);
+                }}
+              >
+                Flash algorithm attributes
+              </Button>
+              <Button size="small" variant="contained" color="warning">
+                Load settings
+              </Button>
+            </Stack>
           </ListItem>
         </List>
       </Paper>
-      <Paper sx={{ marginTop: 1, padding: 2 }}>
-        <Stack direction="row" spacing={2}>
-          <Button variant="contained" color="success" onClick={async () => await sendConfigAndAlgo()}>
-            Write to programmer
-          </Button>
-          <Button
-            variant="contained"
-            disabled={algoMetadata === undefined}
-            color="info"
-            onClick={() => {
-              setOpenAttributeDialog(true);
-            }}
-          >
-            Flash algorithm attributes
-          </Button>
-          <Button variant="contained" color="warning">
-            Load settings
-          </Button>
-        </Stack>
-      </Paper>
+      <Paper sx={{ marginTop: 1, padding: 2 }}></Paper>
       <Dialog onClose={() => setOpenAttributeDialog(false)} open={openAttributeDialog}>
         <DialogTitle>Flash algorithm information</DialogTitle>
         <List>

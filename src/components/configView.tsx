@@ -1,27 +1,22 @@
-import { AttachEmail, DeveloperBoard, DriveFileRenameOutline, FolderOpen } from '@mui/icons-material';
+import { FolderOpen } from '@mui/icons-material';
 import {
-  Avatar,
   Button,
   Checkbox,
-  Dialog,
-  DialogTitle,
-  Divider,
   Grid,
   IconButton,
   List,
   ListItem,
-  ListItemAvatar,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Paper,
   Stack,
   TextField,
-  Typography,
 } from '@mui/material';
 import { dialog } from '@tauri-apps/api';
 import React, { useState } from 'react';
 import { FlashAlgoMetadata, genArmFlashAlgoMetadata, sendConfig, sendFlashAlgo } from '../native/invoke';
+import { FlashAlgoDialog } from './flashAlgoDialog';
 
 export const ConfigView = (): JSX.Element => {
   const [flashAlgoPath, setFlashAlgoPath] = useState<string>();
@@ -62,12 +57,6 @@ export const ConfigView = (): JSX.Element => {
     <>
       <Paper>
         <List>
-          <ListItem divider>
-            <Typography variant="h5" component="div">
-              Flash algorithm
-            </Typography>
-          </ListItem>
-          <ListItem></ListItem>
           <ListItem
             secondaryAction={
               <IconButton edge="end" aria-label="open-file" onClick={openFlashAlgo}>
@@ -167,11 +156,11 @@ export const ConfigView = (): JSX.Element => {
           </ListItem>
           <ListItem>
             <Stack direction="row" spacing={3}>
-              <Button size="small" variant="contained" color="success" onClick={async () => await sendConfigAndAlgo()}>
+              <Button size="medium" variant="contained" color="success" onClick={async () => await sendConfigAndAlgo()}>
                 Write to programmer
               </Button>
               <Button
-                size="small"
+                size="medium"
                 variant="contained"
                 disabled={algoMetadata === undefined}
                 color="info"
@@ -181,45 +170,20 @@ export const ConfigView = (): JSX.Element => {
               >
                 Flash algorithm attributes
               </Button>
-              <Button size="small" variant="contained" color="warning">
+              <Button size="medium" variant="contained" color="warning">
                 Load settings
               </Button>
             </Stack>
           </ListItem>
         </List>
       </Paper>
-      <Paper sx={{ marginTop: 1, padding: 2 }}></Paper>
-      <Dialog onClose={() => setOpenAttributeDialog(false)} open={openAttributeDialog}>
-        <DialogTitle>Flash algorithm information</DialogTitle>
-        <List>
-          <ListItem>
-            <ListItemText
-              primary="Function pointers"
-              secondary={`init: ${algoMetadata?.pcInit?.toString(16) || '??'}; unInit: ${
-                algoMetadata?.pcUninit?.toString(16) || '??'
-              }; eraseSector: ${algoMetadata?.pcEraseSector?.toString(16) || '??'}; programPage: ${
-                algoMetadata?.pcProgramPage?.toString(16) || '??'
-              }`}
-            />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Flash size" secondary={algoMetadata?.flashSize || 'Unknown'}></ListItemText>
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="RAM size" secondary={algoMetadata?.ramSize || 'Unknown'}></ListItemText>
-          </ListItem>
-          <ListItem>
-            <ListItemText
-              primary="Flash attribute"
-              secondary={`startAddr: ${algoMetadata?.flashStartAddr?.toString(16) || '??'}; endAddr: ${
-                algoMetadata?.flashEndAddr?.toString(16) || '??'
-              }; pageSize: ${algoMetadata?.flashPageSize?.toString(10) || '??'}; sectorSize: ${
-                algoMetadata?.flashSectorSize?.toString(10) || '??'
-              }; erasedOffset: ${algoMetadata?.erasedByteValue || '??'}`}
-            ></ListItemText>
-          </ListItem>
-        </List>
-      </Dialog>
+      <FlashAlgoDialog
+        open={openAttributeDialog}
+        handleClose={() => {
+          setOpenAttributeDialog(false);
+        }}
+        metadata={algoMetadata}
+      />
     </>
   );
 };

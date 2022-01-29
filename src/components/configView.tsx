@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { dialog } from '@tauri-apps/api';
 import React, { useState } from 'react';
-import { FlashAlgoMetadata, genArmFlashAlgoMetadata, sendConfig, sendFlashAlgo } from '../native/invoke';
+import { FlashAlgoMetadata, genArmFlashAlgoMetadata, sendConfig, sendFirmware, sendFlashAlgo } from '../native/invoke';
 import { FlashAlgoDialog } from './flashAlgoDialog';
 
 export const ConfigView = (): JSX.Element => {
@@ -47,9 +47,10 @@ export const ConfigView = (): JSX.Element => {
   };
 
   const sendConfigAndAlgo = async () => {
-    if (flashAlgoPath && targetName && ramSize) {
+    if (flashAlgoPath && firmwarePath && targetName && ramSize) {
       await sendConfig(flashAlgoPath, targetName, true, ramSize);
       await sendFlashAlgo(flashAlgoPath, targetName, true, ramSize);
+      await sendFirmware(firmwarePath, targetName);
     }
   };
 

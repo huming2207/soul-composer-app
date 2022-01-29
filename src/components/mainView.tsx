@@ -2,7 +2,6 @@ import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { useState } from 'react';
 import { ConfigView } from './configView';
 import { DeviceInfoView } from './deviceInfoView';
-import { FirmwareView } from './firmwareView';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -14,23 +13,10 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
+    <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} {...other}>
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }
 
 export const MainView = (): JSX.Element => {
@@ -44,10 +30,9 @@ export const MainView = (): JSX.Element => {
     <>
       <Container>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-            <Tab label="Device Info" {...a11yProps(0)} />
-            <Tab label="Configuration" {...a11yProps(1)} />
-            <Tab label="Firmware Image" {...a11yProps(2)} />
+          <Tabs value={value} onChange={handleChange}>
+            <Tab label="Device Info" />
+            <Tab label="Configuration" />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
@@ -55,9 +40,6 @@ export const MainView = (): JSX.Element => {
         </TabPanel>
         <TabPanel value={value} index={1}>
           <ConfigView />
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          <FirmwareView />
         </TabPanel>
       </Container>
     </>

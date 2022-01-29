@@ -6,8 +6,12 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import { invoke } from '@tauri-apps/api/tauri';
-import SoulDeviceStateInstance, { ScannedResult } from './models/SoulDevice';
+import { SnackbarProvider } from 'notistack';
 
 const app = document.getElementById('app');
-ReactDOM.render(<App />, app);
+ReactDOM.render(
+  <SnackbarProvider>
+    <App />
+  </SnackbarProvider>,
+  app,
+);

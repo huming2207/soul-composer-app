@@ -13,10 +13,12 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { dialog } from '@tauri-apps/api';
 import React, { useState } from 'react';
 import { FlashAlgoMetadata, genArmFlashAlgoMetadata, sendConfig, sendFirmware, sendFlashAlgo } from '../native/invoke';
 import { FlashAlgoDialog } from './flashAlgoDialog';
+import { useSnackbar } from 'notistack';
 
 export const ConfigView = (): JSX.Element => {
   const [flashAlgoPath, setFlashAlgoPath] = useState<string>();
@@ -27,6 +29,8 @@ export const ConfigView = (): JSX.Element => {
   const [verify, setVerify] = useState<boolean>(true);
   const [algoMetadata, setAlgoMetadata] = useState<FlashAlgoMetadata>();
   const [openAttributeDialog, setOpenAttributeDialog] = useState<boolean>(false);
+  const [sendingFw, setSendingFw] = useState<boolean>(false);
+  const { enqueueSnackbar } = useSnackbar();
   const openFlashAlgo = async () => {
     const path = (await dialog.open({
       filters: [{ extensions: ['elf', 'ELF'], name: 'Flash algorithm binary' }],
@@ -48,9 +52,37 @@ export const ConfigView = (): JSX.Element => {
 
   const sendConfigAndAlgo = async () => {
     if (flashAlgoPath && firmwarePath && targetName && ramSize) {
+      setSendingFw(true);
+      enqueueSnackbar('Writing configuration...', {
+        variant: 'info',
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'right',
+        },
+      });
       await sendConfig(flashAlgoPath, targetName, true, ramSize);
       await sendFlashAlgo(flashAlgoPath, targetName, true, ramSize);
-      await sendFirmware(firmwarePath, targetName);
+      sendFirmware(firmwarePath, targetName)
+        .then(() => {
+          setSendingFw(false);
+          enqueueSnackbar('Configuration has been committed!', {
+            variant: 'success',
+            anchorOrigin: {
+              vertical: 'top',
+              horizontal: 'right',
+            },
+          });
+        })
+        .catch((err) => {
+          setSendingFw(false);
+          enqueueSnackbar(`Failed when writing configuration: ${err}`, {
+            variant: 'error',
+            anchorOrigin: {
+              vertical: 'top',
+              horizontal: 'right',
+            },
+          });
+        });
     }
   };
 
@@ -157,9 +189,16 @@ export const ConfigView = (): JSX.Element => {
           </ListItem>
           <ListItem>
             <Stack direction="row" spacing={3}>
-              <Button size="medium" variant="contained" color="success" onClick={async () => await sendConfigAndAlgo()}>
+              <LoadingButton
+                loading={sendingFw}
+                size="medium"
+                loadingPosition="start"
+                variant="contained"
+                color="success"
+                onClick={async () => await sendConfigAndAlgo()}
+              >
                 Write to programmer
-              </Button>
+              </LoadingButton>
               <Button
                 size="medium"
                 variant="contained"

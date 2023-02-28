@@ -12,24 +12,24 @@ build = "src/build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.0.0-beta.4", features = [] }
+tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_repr = "0.1"
 base64-serde = "0.6.1"
-tauri = { version = "1.0.0-beta.8", features = ["api-all"] }
+tauri = { version = "1.2.4", features = ["api-all"] }
 thiserror = "1.0"
 goblin = "0.4.3"
 zip = "0.5"
-base64 = "0.13.0"
+base64 = "0.13.1"
 cmsis-pack = "0.5.0"
 log = "0.4"
 scroll = "0.10"
-serialport = "4.0.1"
+serialport = "4.2.0"
 serial-line-ip = "0.5.0"
-bytes = "1.1.0"
+bytes = "1.4.0"
 lazy_static = "1.4.0"
 futures = "0.3"
 crc = "2.1.0"

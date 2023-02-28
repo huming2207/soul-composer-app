@@ -33,7 +33,10 @@ export const ConfigView = (): JSX.Element => {
   const { enqueueSnackbar } = useSnackbar();
   const openFlashAlgo = async () => {
     const path = (await dialog.open({
-      filters: [{ extensions: ['elf', 'ELF'], name: 'Flash algorithm binary' }],
+      filters: [
+        { extensions: ['elf', 'ELF'], name: 'Flash algorithm ELF binary' },
+        { extensions: ['*'], name: 'All files' },
+      ],
       multiple: false,
     })) as string;
 

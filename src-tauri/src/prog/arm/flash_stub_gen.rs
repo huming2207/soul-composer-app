@@ -25,6 +25,7 @@ pub struct ArmFlashStub {
     pub pc_program_page: u32,
     pub pc_erase_sector: u32,
     pub pc_erase_all: Option<u32>,
+    pub pc_verify: Option<u32>,
     pub data_section_offset: u32,
     pub flash_start_addr: u32,
     pub flash_end_addr: u32,
@@ -80,6 +81,7 @@ impl ArmFlashStub {
                 "EraseChip" => algo.pc_erase_all = Some(sym.st_value as u32 - code_section_offset),
                 "EraseSector" => algo.pc_erase_sector = sym.st_value as u32 - code_section_offset,
                 "ProgramPage" => algo.pc_program_page = sym.st_value as u32 - code_section_offset,
+                "Verify" => algo.pc_verify = Some(sym.st_value as u32 - code_section_offset),
                 _ => {}
             }
         }

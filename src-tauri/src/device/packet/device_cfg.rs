@@ -13,6 +13,7 @@ pub struct DeviceConfig {
     pc_program_page: u32,
     pc_erase_sector: u32,
     pc_erase_all: u32,
+    pc_verify: u32,
     data_section_offset: u32,
     flash_start_addr: u32,
     flash_end_addr: u32,
@@ -37,22 +38,23 @@ impl DeviceConfig {
         let mut buf: Vec<u8> = Vec::new();
 
         let magic = DEV_CFG_PKT_MAGIC;
-        buf.extend_from_slice(&magic.to_le_bytes()); // 0..4
-        buf.extend_from_slice(&self.pc_init.to_le_bytes()); // 4..8
-        buf.extend_from_slice(&self.pc_uninit.to_le_bytes()); // 8..12
-        buf.extend_from_slice(&self.pc_program_page.to_le_bytes()); // 12..16
-        buf.extend_from_slice(&self.pc_erase_sector.to_le_bytes()); // 16..20
-        buf.extend_from_slice(&self.pc_erase_all.to_le_bytes()); // 20..24
-        buf.extend_from_slice(&self.data_section_offset.to_le_bytes()); // 24..28
-        buf.extend_from_slice(&self.flash_start_addr.to_le_bytes()); // 28..32
-        buf.extend_from_slice(&self.flash_end_addr.to_le_bytes()); // 32..36
-        buf.extend_from_slice(&self.flash_page_size.to_le_bytes()); // 36..40
-        buf.extend_from_slice(&self.erased_byte.to_le_bytes()); // 40..44
-        buf.extend_from_slice(&self.flash_sector_size.to_le_bytes()); // 44..48
-        buf.extend_from_slice(&self.program_timeout.to_le_bytes()); // 48..52
-        buf.extend_from_slice(&self.erase_timeout.to_le_bytes()); // 52..56
-        buf.extend_from_slice(&self.ram_size.to_le_bytes()); // 56..60
-        buf.extend_from_slice(&self.flash_size.to_le_bytes()); // 60..64
+        buf.extend_from_slice(&magic.to_le_bytes()); // 4
+        buf.extend_from_slice(&self.pc_init.to_le_bytes()); // 8
+        buf.extend_from_slice(&self.pc_uninit.to_le_bytes()); // 12
+        buf.extend_from_slice(&self.pc_program_page.to_le_bytes()); // 16
+        buf.extend_from_slice(&self.pc_erase_sector.to_le_bytes()); // 20
+        buf.extend_from_slice(&self.pc_erase_all.to_le_bytes()); // 24
+        buf.extend_from_slice(&self.pc_verify.to_le_bytes()); // 28
+        buf.extend_from_slice(&self.data_section_offset.to_le_bytes()); // 32
+        buf.extend_from_slice(&self.flash_start_addr.to_le_bytes()); // 32
+        buf.extend_from_slice(&self.flash_end_addr.to_le_bytes()); // 36
+        buf.extend_from_slice(&self.flash_page_size.to_le_bytes()); // 40
+        buf.extend_from_slice(&self.erased_byte.to_le_bytes()); // 44
+        buf.extend_from_slice(&self.flash_sector_size.to_le_bytes()); // 48
+        buf.extend_from_slice(&self.program_timeout.to_le_bytes()); // 52
+        buf.extend_from_slice(&self.erase_timeout.to_le_bytes()); // 56
+        buf.extend_from_slice(&self.ram_size.to_le_bytes()); // 60
+        buf.extend_from_slice(&self.flash_size.to_le_bytes()); // 64
 
         let mut name_trunc = self.name.clone();
         name_trunc.truncate(31);
@@ -96,17 +98,18 @@ impl TryFrom<&[u8]> for DeviceConfig {
         let pc_program_page = slice_to_le_u32(&buf[12..16]);
         let pc_erase_sector = slice_to_le_u32(&buf[16..20]);
         let pc_erase_all = slice_to_le_u32(&buf[20..24]);
-        let data_section_offset = slice_to_le_u32(&buf[24..28]);
-        let flash_start_addr = slice_to_le_u32(&buf[28..32]);
-        let flash_end_addr = slice_to_le_u32(&buf[32..36]);
-        let flash_page_size = slice_to_le_u32(&buf[36..40]);
-        let erased_byte = slice_to_le_u32(&buf[40..44]);
-        let flash_sector_size = slice_to_le_u32(&buf[44..48]);
-        let program_timeout = slice_to_le_u32(&buf[48..52]);
-        let erase_timeout = slice_to_le_u32(&buf[52..56]);
-        let ram_size = slice_to_le_u32(&buf[56..60]);
-        let flash_size = slice_to_le_u32(&buf[60..64]);
-        let name = String::from_utf8((&buf[64..96]).to_vec())
+        let pc_verify = slice_to_le_u32(&buf[24..28]);
+        let data_section_offset = slice_to_le_u32(&buf[28..32]);
+        let flash_start_addr = slice_to_le_u32(&buf[32..36]);
+        let flash_end_addr = slice_to_le_u32(&buf[36..40]);
+        let flash_page_size = slice_to_le_u32(&buf[40..44]);
+        let erased_byte = slice_to_le_u32(&buf[44..48]);
+        let flash_sector_size = slice_to_le_u32(&buf[48..52]);
+        let program_timeout = slice_to_le_u32(&buf[52..56]);
+        let erase_timeout = slice_to_le_u32(&buf[56..60]);
+        let ram_size = slice_to_le_u32(&buf[60..64]);
+        let flash_size = slice_to_le_u32(&buf[64..68]);
+        let name = String::from_utf8((&buf[68..100]).to_vec())
             .map_err(|err| DeviceError::DecodeError(err.to_string()))?
             .trim_matches(char::from(0))
             .to_string();
@@ -122,6 +125,7 @@ impl TryFrom<&[u8]> for DeviceConfig {
             pc_program_page,
             pc_erase_sector,
             pc_erase_all,
+            pc_verify,
             data_section_offset,
             flash_start_addr,
             flash_end_addr,
@@ -145,6 +149,7 @@ impl From<ArmFlashStub> for DeviceConfig {
         let pc_program_page = stub_info.pc_program_page;
         let pc_erase_sector = stub_info.pc_erase_sector;
         let pc_erase_all = stub_info.pc_erase_all.unwrap_or(0);
+        let pc_verify = stub_info.pc_verify.unwrap_or(0);
         let data_section_offset = stub_info.data_section_offset;
         let flash_start_addr = stub_info.flash_start_addr;
         let flash_end_addr = stub_info.flash_end_addr;
@@ -166,6 +171,7 @@ impl From<ArmFlashStub> for DeviceConfig {
             pc_program_page,
             pc_erase_sector,
             pc_erase_all,
+            pc_verify,
             data_section_offset,
             flash_start_addr,
             flash_end_addr,

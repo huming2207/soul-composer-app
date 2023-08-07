@@ -8,14 +8,12 @@
   },
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
-    "tauri": "tauri",
     "start": "parcel",
     "build": "parcel build"
   },
   "devDependencies": {
     "@parcel/compressor-brotli": "^2.8.3",
     "@parcel/compressor-gzip": "^2.8.3",
-    "@tauri-apps/cli": "^1.2.3",
     "@types/node": "^18.14.2",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
@@ -39,7 +37,6 @@
     "@mui/icons-material": "^5.11.11",
     "@mui/lab": "^5.0.0-alpha.121",
     "@mui/material": "^5.11.11",
-    "@tauri-apps/api": "^1.2.0",
     "base64-js": "^1.5.1",
     "mobx": "^6.8.0",
     "mobx-react": "^7.6.0",

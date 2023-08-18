@@ -1,43 +1,13 @@
-import { makeAutoObservable, runInAction } from 'mobx';
-import { closeSoulInjectorDevice, openSoulInjectorDevice } from '../native/invoke';
+import { proxy } from "valtio";
 
-export interface ScannedDevice {
-  port: string;
-  serialNumber: string;
-}
+export const SIDeviceInfo = proxy({
+  macAddr: "Unknown",
+  flashId: "Unknown",
+  sdkVer: "Unknown",
+  devModel: "Unknown",
+  devBuild: "Unknown",
+});
 
-export interface ScannedResult {
-  devices: ScannedDevice[];
-}
-
-class SoulDeviceState {
-  public selectedDevice?: ScannedDevice = undefined;
-  public scanResult: ScannedDevice[] = [];
-
-  constructor() {
-    makeAutoObservable(this);
-  }
-
-  public setScanResult(result: ScannedResult): void {
-    console.log(result.devices);
-    console.log(this.scanResult);
-    runInAction(() => {
-      this.scanResult = result.devices;
-    });
-  }
-
-  public async setSelectedDevice(device: ScannedDevice): Promise<void> {
-    if (this.selectedDevice) {
-      await closeSoulInjectorDevice();
-    }
-
-    await openSoulInjectorDevice(device.port);
-
-    runInAction(() => {
-      this.selectedDevice = device;
-    });
-  }
-}
-
-export const SoulDeviceStateInstance = new SoulDeviceState();
-export default SoulDeviceStateInstance;
+export const SIDevice = proxy({
+  deviceOpened: false,
+});

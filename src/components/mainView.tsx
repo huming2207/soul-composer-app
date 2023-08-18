@@ -1,7 +1,7 @@
-import { Box, Container, Tab, Tabs } from '@mui/material';
-import React, { useState } from 'react';
-import { ConfigView } from './configView';
-import { DeviceInfoView } from './deviceInfoView';
+import { Box, Container, Tab, Tabs } from "@mui/material";
+import React, { useState } from "react";
+import { ConfigView } from "./configView";
+import { DeviceInfoView } from "./deviceInfoView";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -29,7 +29,7 @@ export const MainView = (): JSX.Element => {
   return (
     <>
       <Container>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs value={value} onChange={handleChange}>
             <Tab label="Device Info" />
             <Tab label="Configuration" />

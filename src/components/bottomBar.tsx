@@ -1,19 +1,20 @@
 import { UsbOffRounded, UsbRounded } from "@mui/icons-material";
 import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
 import React from "react";
-import { SIDevice, SIDeviceInfo } from "../models/SoulDevice";
+import { SIDeviceInfoState } from "../models/SoulDevice";
+import { useSnapshot } from "valtio";
 
 export const BottomBar = (): JSX.Element => {
-  const { deviceOpened } = SIDevice;
+  const deviceSnap = useSnapshot(SIDeviceInfoState);
   return (
     <>
       <AppBar position="fixed" color="primary" sx={{ top: "auto", bottom: 0 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {"Device: " + SIDeviceInfo.macAddr}
+            {"Device: " + deviceSnap.macAddr || "disconnected"}
           </Typography>
           <IconButton size="large" color="inherit">
-            {deviceOpened ? <UsbRounded /> : <UsbOffRounded />}
+            {deviceSnap.macAddr ? <UsbRounded /> : <UsbOffRounded />}
           </IconButton>
         </Toolbar>
       </AppBar>

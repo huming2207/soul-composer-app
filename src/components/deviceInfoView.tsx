@@ -1,9 +1,7 @@
-import { AssignmentTurnedIn, Build, Fingerprint, Memory } from '@mui/icons-material';
-import { Card, CardContent, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
-import { Observer } from 'mobx-react-lite';
-import React, { useState } from 'react';
-import SoulDeviceStateInstance from '../models/SoulDevice';
-import { queryDeviceInfo, SoulDeviceInfo, SoulPacket } from '../native/invoke';
+import { AssignmentTurnedIn, Build, Fingerprint, Memory } from "@mui/icons-material";
+import { Card, CardContent, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
+import { Observer } from "mobx-react-lite";
+import React, { useState } from "react";
 
 export const DeviceInfoView = (): JSX.Element => {
   const deviceState = SoulDeviceStateInstance;
@@ -22,14 +20,14 @@ export const DeviceInfoView = (): JSX.Element => {
         }
 
         return deviceState.selectedDevice ? (
-          <List sx={{ width: '100%', maxWidth: 600, bgcolor: 'background.paper' }}>
+          <List sx={{ width: "100%", maxWidth: 600, bgcolor: "background.paper" }}>
             <ListItem>
               <ListItemAvatar>
                 <Avatar>
                   <AssignmentTurnedIn />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="Model name" secondary={deviceInfo?.body.devModel || 'Unknown'} />
+              <ListItemText primary="Model name" secondary={deviceInfo?.body.devModel || "Unknown"} />
             </ListItem>
             <ListItem>
               <ListItemAvatar>
@@ -37,7 +35,7 @@ export const DeviceInfoView = (): JSX.Element => {
                   <Fingerprint />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="Serial number" secondary={deviceState.selectedDevice.serialNumber || 'Unknown'} />
+              <ListItemText primary="Serial number" secondary={deviceState.selectedDevice.serialNumber || "Unknown"} />
             </ListItem>
             <ListItem>
               <ListItemAvatar>
@@ -45,7 +43,7 @@ export const DeviceInfoView = (): JSX.Element => {
                   <Build />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="Firmware version" secondary={deviceInfo?.body.devBuild || 'Unknown'} />
+              <ListItemText primary="Firmware version" secondary={deviceInfo?.body.devBuild || "Unknown"} />
             </ListItem>
             <ListItem>
               <ListItemAvatar>
@@ -53,7 +51,7 @@ export const DeviceInfoView = (): JSX.Element => {
                   <Memory />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="SDK version" secondary={deviceInfo?.body.espIdfVer || 'Unknown'} />
+              <ListItemText primary="SDK version" secondary={deviceInfo?.body.espIdfVer || "Unknown"} />
             </ListItem>
           </List>
         ) : (

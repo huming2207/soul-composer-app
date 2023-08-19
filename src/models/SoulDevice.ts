@@ -1,13 +1,17 @@
 import { proxy } from "valtio";
 
-export const SIDeviceInfo = proxy({
+export interface SIDeviceInfo {
+  macAddr?: string;
+  flashId?: string;
+  sdkVer?: string;
+  devModel?: string;
+  devBuild?: string;
+}
+
+export const SIDeviceInfoState = proxy({
   macAddr: "Unknown",
   flashId: "Unknown",
   sdkVer: "Unknown",
   devModel: "Unknown",
   devBuild: "Unknown",
-});
-
-export const SIDevice = proxy({
-  deviceOpened: false,
-});
+} as SIDeviceInfo);
